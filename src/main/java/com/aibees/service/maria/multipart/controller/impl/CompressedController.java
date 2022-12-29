@@ -29,11 +29,11 @@ public class CompressedController implements FileController {
     @Override
     @GetMapping("/{filename}")
     public ResponseEntity<Resource> downloadResource(String filename) {
-        // resource 데이터 뽑아온다.
-        ResourceVo resData = compressService.getResource(filename);
+        // resource 데이터를 뽑아온다.
+        ResourceVo resData = compressService.getResource("", filename);
 
         try {
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(
+            InputStreamResource resource = new InputStreamResource( new FileInputStream (
                     resData.getPath() + resData.getFilename()
             ));
 

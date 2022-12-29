@@ -4,7 +4,7 @@ import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
 
 public interface FileService {
 
-    ResourceVo getResource(String name);
+    ResourceVo getResource(String path, String name);
 
     String getUUID(String type);
 }

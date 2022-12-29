@@ -6,6 +6,7 @@ import com.aibees.service.maria.multipart.service.FileService;
 import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -17,7 +18,7 @@ public class CompressedFileService implements FileService {
     private final MetadataRepository metadataRepository;
 
     @Override
-    public ResourceVo getResource(String name) {
+    public ResourceVo getResource(String path, String name) {
         return null;
     }
 
@@ -37,7 +38,7 @@ public class CompressedFileService implements FileService {
         } else {
             newUUID = param.concat(
                     StringUtils.UuidNumberFormat(
-                            Integer.parseInt(fileid_max.substring(9, 14))
+                            Integer.parseInt(fileid_max.substring(9, 14)) + 1
                     )
             );
         }
