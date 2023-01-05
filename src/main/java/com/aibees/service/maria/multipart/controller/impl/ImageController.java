@@ -6,19 +6,26 @@ import com.aibees.service.maria.multipart.dao.obj.ImageFileCondition;
 import com.aibees.service.maria.multipart.dao.vo.ImageFileVo;
 import com.aibees.service.maria.multipart.service.impl.ImageFileService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 @RequestMapping("/image")
 public class ImageController implements FileController {
 
@@ -48,6 +55,24 @@ public class ImageController implements FileController {
         System.out.println(params.toString());
 
         return null;
+    }
+
+    @GetMapping(value="/imagetest/{filename}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<Resource> getImageTest(ImageFileCondition params) {
+
+        try {
+            String inputFile = "D:\\".concat(params.getFilename());
+            System.out.println(inputFile);
+            Path path = new File(inputFile).toPath();
+
+            return ResponseEntity
+                    .ok()
+                    .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
+                    .body(new FileSystemResource(path));
+        } catch(IOException e) {
+            log.info(e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @Override
