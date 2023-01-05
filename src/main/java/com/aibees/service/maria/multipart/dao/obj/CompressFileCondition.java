@@ -1,14 +1,8 @@
 package com.aibees.service.maria.multipart.dao.obj;
 
 import com.aibees.service.maria.common.StringUtils;
-import lombok.*;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
-@Builder
-public class ImageFileCondition implements FileCondition {
+public class CompressFileCondition implements FileCondition {
     private String category;
     private String ym;
     private Long number;

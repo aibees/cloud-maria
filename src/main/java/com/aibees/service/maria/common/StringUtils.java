@@ -3,7 +3,7 @@ package com.aibees.service.maria.common;
 public class StringUtils {
 
     public static boolean isNull(String str) {
-        return (str == null);
+        return (str == null || str.isEmpty());
     }
 
     public static String UuidNumberFormat(int num) {

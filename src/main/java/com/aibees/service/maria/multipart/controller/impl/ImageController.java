@@ -75,12 +75,6 @@ public class ImageController implements FileController {
         }
     }
 
-    @Override
-    public ResponseEntity<Resource> downloadResource(@RequestParam String res) {
-        return null;
-    }
-
-    @Override
     public ResponseEntity<Void> uploadResource(@RequestParam MultipartFile file, @RequestParam String data) {
         return null;
     }

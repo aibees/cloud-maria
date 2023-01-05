@@ -1,13 +1,16 @@
 package com.aibees.service.maria.multipart.service.impl;
 
 import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.multipart.dao.obj.FileCondition;
 import com.aibees.service.maria.multipart.dao.repo.MetadataRepository;
 import com.aibees.service.maria.multipart.service.FileService;
 import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
@@ -18,7 +21,7 @@ public class CompressedFileService implements FileService {
     private final MetadataRepository metadataRepository;
 
     @Override
-    public ResourceVo getResource(String path, String name) {
+    public Resource getResource(FileCondition param) throws IOException {
         return null;
     }
 

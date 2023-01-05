@@ -1,6 +1,8 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
 import com.aibees.service.maria.multipart.controller.FileController;
+import com.aibees.service.maria.multipart.dao.obj.CompressFileCondition;
+import com.aibees.service.maria.multipart.service.impl.CommonFileService;
 import com.aibees.service.maria.multipart.service.impl.CompressedFileService;
 import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
 import lombok.AllArgsConstructor;
@@ -16,7 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aibees.service.maria.common.HttpUtils;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -25,28 +28,22 @@ public class CompressedController implements FileController {
 
     private final HttpUtils httpUtils;
     private final CompressedFileService compressService;
+    private final CommonFileService commonFileService;
 
-    @Override
-    @GetMapping("/{filename}")
-    public ResponseEntity<Resource> downloadResource(String filename) {
-        // resource 데이터를 뽑아온다.
-        ResourceVo resData = compressService.getResource("", filename);
-
-        try {
-            InputStreamResource resource = new InputStreamResource( new FileInputStream (
-                    resData.getPath() + resData.getFilename()
-            ));
-
-            return ResponseEntity.ok()
-                    .headers(httpUtils.getDownloadHeader(resData))
-                    .contentLength(resData.getFile().length())
-                    .body(resource);
-        } catch(FileNotFoundException fne) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    @GetMapping("/list")
+    public ResponseEntity<List> getCompressResourceList() {
+        return ResponseEntity
+                .ok()
+                .body(commonFileService.getReousrceList());
     }
 
-    @Override
+    @GetMapping("/{filename}")
+    public ResponseEntity<Resource> downloadResource(CompressFileCondition param) {
+        // resource 데이터를 뽑아온다.
+        Resource resData;
+        return null;
+    }
+
     @PostMapping("")
     public ResponseEntity<Void> uploadResource(MultipartFile file, String data) {
         return new ResponseEntity<Void>(HttpStatus.OK);
