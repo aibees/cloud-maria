@@ -1,4 +1,4 @@
-package com.aibees.service.maria.multipart.dao.entity;
+package com.aibees.service.maria.multipart.domain.entity;
 
 import lombok.Data;
 import lombok.ToString;
@@ -18,6 +18,7 @@ public class ImageFileEntity {
     private String ym;
     private long number;
     private String filename;
+    private String ext;
 
     @Column(name="create_at")
     private LocalDateTime createdAt;

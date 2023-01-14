@@ -1,26 +1,18 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
-import com.aibees.service.maria.common.CONSTANT;
 import com.aibees.service.maria.multipart.controller.FileController;
-import com.aibees.service.maria.multipart.dao.obj.ImageFileCondition;
-import com.aibees.service.maria.multipart.dao.vo.ImageFileVo;
+import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
+import com.aibees.service.maria.multipart.domain.vo.ImageFileVo;
 import com.aibees.service.maria.multipart.service.impl.ImageFileService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 @RestController
@@ -47,28 +39,19 @@ public class ImageController implements FileController {
         );
     }
 
-    @GetMapping("/{category}/{ym}/{filename}")
-    public ResponseEntity<Resource> displayImageResource(ImageFileCondition params) {
-        String base_dir = CONSTANT.FILE_HOME.concat(CONSTANT.IMAGE_HOME);
-
-        System.out.println("base_dir : " + base_dir);
-        System.out.println(params.toString());
-
-        return null;
-    }
-
-    @GetMapping(value="/imagetest/{filename}", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<Resource> getImageTest(ImageFileCondition params) {
+    /**
+     * 이미지 Resource 조회 (실제 이미지)
+     * @param params
+     * @return Resource
+     */
+    @GetMapping(value="/{category}/{ym}/{number}")
+    public ResponseEntity<Resource> getImageResource(ImageFileCondition params) {
 
         try {
-            String inputFile = "D:\\".concat(params.getFilename());
-            System.out.println(inputFile);
-            Path path = new File(inputFile).toPath();
-
             return ResponseEntity
-                    .ok()
-                    .contentType(MediaType.parseMediaType(Files.probeContentType(path)))
-                    .body(new FileSystemResource(path));
+                   .ok()
+                   .contentType(MediaType.parseMediaType(MediaType.IMAGE_PNG_VALUE))
+                   .body(imageFileService.getResource(params));
         } catch(IOException e) {
             log.info(e.getMessage());
             return ResponseEntity.badRequest().body(null);

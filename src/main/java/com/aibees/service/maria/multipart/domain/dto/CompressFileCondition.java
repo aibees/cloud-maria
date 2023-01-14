@@ -1,4 +1,4 @@
-package com.aibees.service.maria.multipart.dao.obj;
+package com.aibees.service.maria.multipart.domain.dto;
 
 import com.aibees.service.maria.common.StringUtils;
 

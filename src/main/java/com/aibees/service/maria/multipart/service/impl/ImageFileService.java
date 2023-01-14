@@ -1,29 +1,46 @@
 package com.aibees.service.maria.multipart.service.impl;
 
+import com.aibees.service.maria.common.PathBuilder;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.multipart.dao.entity.ImageFileEntity;
-import com.aibees.service.maria.multipart.dao.obj.FileCondition;
-import com.aibees.service.maria.multipart.dao.obj.ImageFileCondition;
-import com.aibees.service.maria.multipart.dao.repo.ImageFileRepository;
-import com.aibees.service.maria.multipart.dao.vo.ImageFileVo;
-import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
+import com.aibees.service.maria.multipart.domain.entity.ImageFileEntity;
+import com.aibees.service.maria.multipart.domain.dto.FileCondition;
+import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
+import com.aibees.service.maria.multipart.domain.repo.ImageFileRepository;
+import com.aibees.service.maria.multipart.domain.vo.ImageFileVo;
 import com.aibees.service.maria.multipart.service.FileService;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.imaging.jpeg.JpegProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.aibees.service.maria.common.CONSTANT.FILE_HOME;
+import static com.aibees.service.maria.common.CONSTANT.IMAGE_HOME;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ImageFileService implements FileService {
 
     private final ImageFileRepository imageRepository;
@@ -58,12 +75,26 @@ public class ImageFileService implements FileService {
     @Override
     public Resource getResource(FileCondition param) throws IOException {
         ImageFileCondition imageParam = (ImageFileCondition) param;
-        System.out.println(imageParam.toString());
+        log.info("ImageFileCondition : " + imageParam.toString());
+        List<ImageFileEntity> imageEntities = imageRepository.findByCategoryAndYmAndNumber(
+                  imageParam.getCategory().toUpperCase()
+                , imageParam.getYm()
+                , imageParam.getNumber()
+        );
+        ImageFileEntity imageEntity = imageEntities.get(0);
 
-        String file = FILE_HOME;
+        String fileName = StringUtils.UuidNumberFormat(imageParam.getNumber()) + "." + imageEntity.getExt();
+        String filePath = new PathBuilder.start()
+                                         .setBasePath(FILE_HOME + IMAGE_HOME)
+                                         .addPath(imageParam.getCategory())
+                                         .addPath(imageParam.getYm())
+                                         .addPath(fileName)
+                                         .end();
+
+        showMetadata(filePath);
 
         return new FileSystemResource(
-                new File(file).toPath()
+                new File(filePath).toPath()
         );
     }
 
@@ -74,6 +105,7 @@ public class ImageFileService implements FileService {
 
     private ImageFileVo imageFileConverter(ImageFileEntity entity) {
         return ImageFileVo.builder()
+                .id(entity.getId())
                 .category(entity.getCategory())
                 .ym(entity.getYm())
                 .number(entity.getNumber())
@@ -88,5 +120,31 @@ public class ImageFileService implements FileService {
         pathes.add(param.getYm());
 
         return String.join("/", pathes);
+    }
+
+    private void showMetadata(String filename) {
+        DateTimeFormatter form = DateTimeFormatter.ofPattern("yyyy:MM:dd HH:mm:ss");
+        try {
+            File file = new File(filename);
+            Metadata meta = JpegMetadataReader.readMetadata(file);
+
+            ExifIFD0Directory ifdDir = meta.getFirstDirectoryOfType(ExifIFD0Directory.class);
+
+            if(!Objects.isNull(ifdDir)) {
+                String takeTimeStr = ifdDir.getString(ExifIFD0Directory.TAG_DATETIME);
+                LocalDateTime takeTime = LocalDateTime.parse(takeTimeStr, form);
+
+                System.out.println("filename : " + filename);
+                System.out.println("orientation time : " + takeTime.toString());
+            } else {
+                System.out.println("pic Exif is null");
+            }
+        } catch (IOException e) {
+            System.out.print(e.getMessage());
+        } catch (IllegalArgumentException ae) {
+            System.out.println(ae.getMessage());
+        } catch (JpegProcessingException e) {
+            System.out.println("JpegProcessingException : " + e.getMessage());
+        }
     }
 }

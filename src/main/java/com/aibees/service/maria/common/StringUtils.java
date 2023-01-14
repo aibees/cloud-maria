@@ -17,6 +17,10 @@ public class StringUtils {
         return num_str.toString();
     }
 
+    public static String UuidNumberFormat(long num) {
+        return UuidNumberFormat((int) num);
+    }
+
     public static String createEmptyString() {
         return new String();
     }

@@ -1,6 +1,6 @@
-package com.aibees.service.maria.multipart.dao.repo;
+package com.aibees.service.maria.multipart.domain.repo;
 
-import com.aibees.service.maria.multipart.dao.entity.MetadataEntity;
+import com.aibees.service.maria.multipart.domain.entity.MetadataEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

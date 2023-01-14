@@ -1,4 +1,4 @@
-package com.aibees.service.maria.multipart.dao.vo;
+package com.aibees.service.maria.multipart.domain.vo;
 
 import lombok.Builder;
 import lombok.Data;

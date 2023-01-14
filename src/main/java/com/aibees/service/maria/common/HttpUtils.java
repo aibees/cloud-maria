@@ -1,7 +1,7 @@
 package com.aibees.service.maria.common;
 
 
-import com.aibees.service.maria.multipart.dao.vo.ResourceVo;
+import com.aibees.service.maria.multipart.domain.vo.ResourceVo;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 
