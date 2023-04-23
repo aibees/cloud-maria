@@ -6,6 +6,10 @@ public class StringUtils {
         return (str == null || str.isEmpty());
     }
 
+    public static boolean isNotNull(String str) {
+        return !isNull(str);
+    }
+
     public static String UuidNumberFormat(int num) {
         StringBuilder num_str = new StringBuilder(Integer.toString(num));
         int len = num_str.length();

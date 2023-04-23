@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aibees.service.maria.common.HttpUtils;
 
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -27,12 +26,6 @@ public class CompressedController implements FileController {
     private final CompressedFileService compressService;
     private final CommonFileService commonFileService;
 
-    @GetMapping("/list")
-    public ResponseEntity<List> getCompressResourceList() {
-        return ResponseEntity
-                .ok()
-                .body(commonFileService.getReousrceList());
-    }
 
     @GetMapping("/{filename}")
     public ResponseEntity<Resource> downloadResource(CompressFileCondition param) {
