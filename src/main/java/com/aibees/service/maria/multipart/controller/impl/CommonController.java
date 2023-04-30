@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 파일 조회, 파일 및 폴더 생성/삭제 등 공통처리모듈
@@ -20,6 +21,11 @@ public class CommonController {
     @GetMapping("/list")
     public List<FileVo> getChildFiles(@RequestParam(value="fileId", defaultValue = "0") String fileId) {
         return commonFileService.getResourceList(fileId);
+    }
+
+    @GetMapping("/back")
+    public Map<String, Object> getParentWithLists(@RequestParam(value="fileId") String fileId) {
+        return commonFileService.getParentFileList(fileId);
     }
 
     @GetMapping("/{fileId}")

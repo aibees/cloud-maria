@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,6 +89,28 @@ public class CommonFileService {
         }
 
         return newFile;
+    }
+
+    public Map<String, Object> getParentFileList(String fileId) {
+        Map<String, Object> data = new HashMap<>();
+        List<CommonFileEntity> childList = null;
+        // 1. getParentId
+        // 자기 데이터 구하고
+        CommonFileEntity file = fileStoreRepo.findOneById(Long.parseLong(fileId));
+        System.out.println("file : " + file.toString());
+
+        // 자기데이터에서 알아낸 parent id로 parent 데이터 받고
+        CommonFileEntity parent = fileStoreRepo.findOneById(file.getParentId());
+        data.put("parent", parent);
+        System.out.println("parent : " + parent);
+
+        // parent에 속한 파일 리스트 받고
+        if(!Objects.isNull(parent))
+            childList =
+                Optional.ofNullable(fileStoreRepo.findAllByParentId(parent.getId())).orElse(null);
+        data.put("list", childList);
+
+        return data;
     }
 
     private String getFullDirPath(FileVo file) {
