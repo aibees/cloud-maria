@@ -4,8 +4,8 @@ import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.multipart.domain.entity.CommonFileEntity;
 import com.aibees.service.maria.multipart.domain.repo.FileStoreRepository;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
-import com.aibees.service.maria.multipart.domain.vo.ResourceVo;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -15,36 +15,42 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CommonFileService {
     private final String SLASH = "/";
     private final String SLASH_WIN = "\\";
 
     private final FileStoreRepository fileStoreRepo;
 
+    /**
+     * 해당파일 child 리스트를 조회
+     * @param fileId
+     * @return
+     */
     public List<FileVo> getResourceList(String fileId) {
         CommonFileEntity fileData = fileStoreRepo.findOneById(Long.parseLong(fileId));
 
-        System.out.println("[CommonFileService][getResourceList]fileId=" + fileData.toString());
+        log.info("[CommonFileService][getResourceList] fileId=" + fileData.toString());
 
         return fileStoreRepo.findAllByParentId(fileData.getId())
-                .stream().map(entity ->
-                        FileVo.builder()
-                              .id(entity.getId())
-                                .parentId(entity.getParentId())
-                                .filename(entity.getFilename())
-                                .ext(entity.getExt())
-                                .createAt(entity.getCreateAt())
-                                .build()
+                .stream().map(entity -> {
+                        return new FileVo();
+                    }
                 ).collect(Collectors.toList());
     }
 
+    /**
+     * 파일 metadata 조회
+     * @param fileId
+     * @return
+     */
     public FileVo getFileInfo(String fileId) {
         CommonFileEntity entity = fileStoreRepo.findOneById(Long.parseLong(fileId));
 
         FileVo data = FileVo.builder()
                             .id(entity.getId())
                             .parentId(entity.getParentId())
-                            .filename(entity.getFilename())
+                            .fileName(entity.getFilename())
                             .ext(entity.getExt())
                             .createAt(entity.getCreateAt())
                             .build();
@@ -53,11 +59,16 @@ public class CommonFileService {
         return data;
     }
 
+    /**
+     * 새로운 DIR 생성(mkdir)
+     * @param param
+     * @return
+     */
     public FileVo createDirectory(FileVo param) {
-        // 0. select FileVos from DB to find absolute path;
+        // 0. 새로운 DIR 만들 위치의 absolute Path를 찾는다.
         FileVo parent = FileVo.convertEntity(fileStoreRepo.findOneById(param.getParentId()));
         parent.setAbsoluePath(this.getFullDirPath(parent));
-        String newAbsPath = parent.getAbsoluePath() + "/" + param.getFilename();
+        String newAbsPath = parent.getAbsoluePath() + "/" + param.getFileName();
 
         long fileNewId = fileStoreRepo.getMaxId();
 
@@ -65,7 +76,7 @@ public class CommonFileService {
         FileVo newFile = FileVo.builder()
                 .id(fileNewId)
                 .parentId(param.getParentId())
-                .filename(param.getFilename())
+                .fileName(param.getFileName())
                 .ext(param.getExt())
                 .absoluePath(newAbsPath)
                 .createAt(LocalDateTime.now())
@@ -77,7 +88,6 @@ public class CommonFileService {
         if(System.getProperty("os.name").toLowerCase().contains("win")) {
             createDir = "C:\\maria_test".concat(newFile.getAbsoluePath().replace(SLASH, SLASH_WIN));
         } else {
-            createDir = "/app/maria";
             createDir = "/app/maria".concat(newFile.getAbsoluePath());
         }
         File destFolder = new File(createDir);
@@ -85,10 +95,26 @@ public class CommonFileService {
 
         // 3. db insert
         if(result) {
-            fileStoreRepo.save(CommonFileEntity.convert(newFile));
+            fileStoreRepo.save(
+                    CommonFileEntity
+                            .builder()
+                            .id(newFile.getId())
+                            .parentId(newFile.getParentId())
+                            .filename(newFile.getFileName())
+                            .ext(newFile.getExt())
+                            .alias(newFile.getPathName())
+                            .createAt(newFile.getCreateAt())
+                            .build());
         }
 
         return newFile;
+    }
+
+    public int deleteDirectory(FileVo param) {
+        int result = -99;
+        // 0. 삭제할 dir의 absolute Path를 찾는다.
+
+        return result;
     }
 
     public Map<String, Object> getParentFileList(String fileId) {
@@ -110,6 +136,7 @@ public class CommonFileService {
                 Optional.ofNullable(fileStoreRepo.findAllByParentId(parent.getId())).orElse(null);
         data.put("list", childList);
 
+        // 리턴
         return data;
     }
 
@@ -121,17 +148,17 @@ public class CommonFileService {
                            FileVo.builder()
                                  .id(entity.getId())
                                  .parentId(entity.getParentId())
-                                 .filename(entity.getFilename())
+                                 .fileName(entity.getFilename())
                                  .build()));
 
         FileVo curFile = file;
-        String abPath = SLASH.concat(file.getFilename());
+        String abPath = SLASH.concat(file.getFileName());
 
         while(curFile.getId() > 0) { // root 찾을 때까지
             System.out.println("[getFullDirPath] ==> " + curFile.toString() + " // path : " + abPath);
             FileVo parentFile = dirMap.get(curFile.getParentId()); //부모 Filevo 찾기
-            if(StringUtils.isNotNull(parentFile.getFilename()))
-                abPath = SLASH.concat(parentFile.getFilename()).concat(abPath);
+            if(StringUtils.isNotNull(parentFile.getFileName()))
+                abPath = SLASH.concat(parentFile.getFileName()).concat(abPath);
 
             curFile = parentFile;
         }

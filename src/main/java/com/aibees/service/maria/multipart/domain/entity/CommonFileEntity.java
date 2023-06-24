@@ -24,14 +24,5 @@ public class CommonFileEntity {
     private String filename;
     private String ext;
     private LocalDateTime createAt;
-
-    public static CommonFileEntity convert(FileVo vo) {
-        return CommonFileEntity.builder()
-                .id(vo.getId())
-                .parentId(vo.getParentId())
-                .filename(vo.getFilename())
-                .ext(vo.getExt())
-                .createAt(vo.getCreateAt())
-                .build();
-    }
+    private String alias;
 }
