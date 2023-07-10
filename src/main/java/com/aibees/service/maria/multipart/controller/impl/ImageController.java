@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @AllArgsConstructor
@@ -60,5 +61,18 @@ public class ImageController implements FileController {
 
     public ResponseEntity<Void> uploadResource(@RequestParam MultipartFile file, @RequestParam String data) {
         return null;
+    }
+
+    @CrossOrigin(origins = {"http://localhost:7077"})
+    @PostMapping("/upload")
+    public String uploadFiles(@RequestPart MultipartFile file) {
+        if(Objects.isNull(file))
+            System.out.println("file is null... WHY??");
+        log.info("======== FILE UPLOAD ===========");
+        log.info("file name : " + file.getOriginalFilename());
+        log.info("file size : " + file.getSize());
+        log.info("file meta : " + file.getContentType());
+
+        return "OK";
     }
 }
