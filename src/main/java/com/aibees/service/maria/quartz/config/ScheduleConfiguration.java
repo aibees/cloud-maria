@@ -4,11 +4,12 @@ import com.aibees.service.maria.quartz.vo.JobVo;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class ScheduleConfiguration {
@@ -40,19 +41,22 @@ public class ScheduleConfiguration {
                 scheduler.scheduleJob(detail, trigger);
             }
 
-        } catch(ClassNotFoundException cnf) {
+        } catch(ClassNotFoundException | SchedulerException cnf) {
             cnf.printStackTrace();
-        } catch(SchedulerException se) {
-            se.printStackTrace();
         }
     }
 
     private JobDetail createJobDetail(JobVo job) throws ClassNotFoundException {
         JobDataMap dataMap = new JobDataMap();
+        dataMap.put("year", 2022);
+        dataMap.put("month", 11);
+        dataMap.put("day", 28);
         // dataMap.putAll(param);
         String jobClassPath = String.join(".", JOB_BASE_PACKAGE, job.getClassName());
 
-        return JobBuilder.newJob((Class<? extends Job>) Class.forName(jobClassPath)).build();
+        return JobBuilder.newJob((Class<? extends Job>) Class.forName(jobClassPath))
+                .setJobData(dataMap)
+                .build();
     }
 
     private Trigger createTrigger(JobVo job) {

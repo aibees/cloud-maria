@@ -1,6 +1,7 @@
 package com.aibees.service.maria.quartz.jobs;
 
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
@@ -17,6 +18,10 @@ public class FileSyncroJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 
         log.info("execute File syncro Job");
+
+        JobDataMap jobParam = context.getJobDetail().getJobDataMap();
+        if(!jobParam.isEmpty())
+            log.info("jobParam => " + String.join(", ", jobParam.getKeys()));
 
         int data = base + interval;
         log.info("DATA : " + data);
