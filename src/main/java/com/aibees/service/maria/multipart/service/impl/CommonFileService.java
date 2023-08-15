@@ -20,6 +20,9 @@ public class CommonFileService {
     private final String SLASH = "/";
     private final String SLASH_WIN = "\\";
 
+    private static final String ABS_PATH_ROUTE = "absPathRoute";
+    private static final String ABS_PATH_NAME = "absPathName";
+
     private final FileStoreRepository fileStoreRepo;
 
     /**
@@ -30,11 +33,22 @@ public class CommonFileService {
     public List<FileVo> getResourceList(String fileId) {
         CommonFileEntity fileData = fileStoreRepo.findOneById(Long.parseLong(fileId));
 
-        log.info("[CommonFileService][getResourceList] fileId=" + fileData.toString());
-
         return fileStoreRepo.findAllByParentId(fileData.getId())
                 .stream().map(entity -> {
-                        return new FileVo();
+
+                        FileVo curFile = FileVo.builder()
+                                .id(entity.getId())
+                                .parentId(entity.getParentId())
+                                .fileName(entity.getFilename())
+                                .name(StringUtils.isNotNull(entity.getAlias()) ? entity.getAlias() : entity.getFilename())
+                                .ext((entity.getExt()))
+                                .build();
+
+                        Map<String, String> paths = getFullDirPathAll(curFile);
+                        curFile.setPath(paths.get(ABS_PATH_ROUTE));
+                        curFile.setPathName(paths.get(ABS_PATH_NAME));
+
+                        return curFile;
                     }
                 ).collect(Collectors.toList());
     }
@@ -141,28 +155,52 @@ public class CommonFileService {
     }
 
     private String getFullDirPath(FileVo file) {
+        return this.getFullDirPathAll(file).get(ABS_PATH_ROUTE);
+    }
+
+    private String getFullDirPathName(FileVo file) {
+        return this.getFullDirPathAll(file).get(ABS_PATH_NAME);
+    }
+
+    private Map<String, String> getFullDirPathAll(FileVo file) {
+        Map<String, String> result = new HashMap<>();
+
+        // directory 는 전부 가져온다.
         Map<Long, FileVo> dirMap = new HashMap<>();
         fileStoreRepo.findAllByExt("dir")
                 .parallelStream().forEach(entity ->
                 dirMap.put(entity.getId(),
-                           FileVo.builder()
-                                 .id(entity.getId())
-                                 .parentId(entity.getParentId())
-                                 .fileName(entity.getFilename())
-                                 .build()));
+                        FileVo.builder()
+                                .id(entity.getId())
+                                .parentId(entity.getParentId())
+                                .fileName(entity.getFilename())
+                                .name(entity.getAlias())
+                                .build()));
 
         FileVo curFile = file;
-        String abPath = SLASH.concat(file.getFileName());
+        String pathRoute = SLASH.concat(file.getFileName());
+        String pathName = SLASH.concat((file.getFileName()));
 
         while(curFile.getId() > 0) { // root 찾을 때까지
-            System.out.println("[getFullDirPath] ==> " + curFile.toString() + " // path : " + abPath);
+            System.out.println("[getFullDirPath] ==> " + curFile.toString() + " // path : " + pathRoute);
+
             FileVo parentFile = dirMap.get(curFile.getParentId()); //부모 Filevo 찾기
+
             if(StringUtils.isNotNull(parentFile.getFileName()))
-                abPath = SLASH.concat(parentFile.getFileName()).concat(abPath);
+                pathRoute = SLASH.concat(parentFile.getFileName()).concat(pathRoute);
+
+            if(StringUtils.isNotNull(parentFile.getName())) {
+                pathName = SLASH.concat(parentFile.getName()).concat(pathName);
+            } else {
+                pathName = SLASH.concat(parentFile.getFileName()).concat(pathName);
+            }
 
             curFile = parentFile;
         }
 
-        return abPath;
+        result.put(ABS_PATH_ROUTE, pathRoute);
+        result.put(ABS_PATH_NAME, pathName);
+
+        return result;
     }
 }

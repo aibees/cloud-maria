@@ -57,6 +57,4 @@ public class CommonController {
     public FileVo createDir(@RequestBody FileVo vo) {
         return commonFileService.createDirectory(vo);
     }
-
-
 }

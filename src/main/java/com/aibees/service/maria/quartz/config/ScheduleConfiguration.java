@@ -34,14 +34,17 @@ public class ScheduleConfiguration {
         );
 
         try {
-            for(JobVo job : jobList) {
+            for (JobVo job : jobList) {
                 JobDetail detail = createJobDetail(job);
                 Trigger trigger = createTrigger(job);
 
-                scheduler.scheduleJob(detail, trigger);
+                //scheduler.scheduleJob(detail, trigger);
             }
 
-        } catch(ClassNotFoundException | SchedulerException cnf) {
+//        } catch(ClassNotFoundException | SchedulerException cnf) {
+//            cnf.printStackTrace();
+//        }
+        } catch(ClassNotFoundException cnf) {
             cnf.printStackTrace();
         }
     }
