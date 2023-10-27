@@ -2,7 +2,7 @@ package com.aibees.service.maria.multipart.domain.dto;
 
 import com.aibees.service.maria.common.StringUtils;
 
-public class CompressFileCondition implements FileCondition {
+public class CompressFileCondition extends FileCondition {
     private String category;
     private String ym;
     private Long number;

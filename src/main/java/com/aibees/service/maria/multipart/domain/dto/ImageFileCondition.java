@@ -3,12 +3,13 @@ package com.aibees.service.maria.multipart.domain.dto;
 import com.aibees.service.maria.common.StringUtils;
 import lombok.*;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @ToString
 @Builder
-public class ImageFileCondition implements FileCondition {
+public class ImageFileCondition extends FileCondition {
     private String category;
     private String ym;
     private Long number;

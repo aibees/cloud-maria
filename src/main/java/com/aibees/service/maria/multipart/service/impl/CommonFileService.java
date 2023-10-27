@@ -1,6 +1,8 @@
 package com.aibees.service.maria.multipart.service.impl;
 
 import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.multipart.domain.dto.CommonFileCondition;
+import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.entity.CommonFileEntity;
 import com.aibees.service.maria.multipart.domain.repo.FileStoreRepository;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
@@ -27,11 +29,13 @@ public class CommonFileService {
 
     /**
      * 해당파일 child 리스트를 조회
-     * @param fileId
+     * @param fileParam
      * @return
      */
-    public List<FileVo> getResourceList(String fileId) {
-        CommonFileEntity fileData = fileStoreRepo.findOneById(Long.parseLong(fileId));
+    public List<FileVo> getResourceList(CommonFileCondition fileParam) {
+        log.info(fileParam.toString());
+        log.info(Long.toString(fileParam.getFileId()));
+        CommonFileEntity fileData = fileStoreRepo.findOneById(fileParam.getFileId());
 
         return fileStoreRepo.findAllByParentId(fileData.getId())
                 .stream().map(entity -> {
@@ -182,8 +186,6 @@ public class CommonFileService {
         String pathName = SLASH.concat((file.getFileName()));
 
         while(curFile.getId() > 0) { // root 찾을 때까지
-            System.out.println("[getFullDirPath] ==> " + curFile.toString() + " // path : " + pathRoute);
-
             FileVo parentFile = dirMap.get(curFile.getParentId()); //부모 Filevo 찾기
 
             if(StringUtils.isNotNull(parentFile.getFileName()))

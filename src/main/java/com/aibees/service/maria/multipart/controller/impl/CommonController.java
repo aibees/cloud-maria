@@ -1,5 +1,7 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
+import com.aibees.service.maria.multipart.domain.dto.CommonFileCondition;
+import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
 import com.aibees.service.maria.multipart.service.impl.CommonFileService;
 import lombok.AllArgsConstructor;
@@ -20,12 +22,12 @@ public class CommonController {
 
     /**
      * 해당파일 child 리스트를 조회
-     * @param fileId
+     * @param fileParam
      * @return
      */
-    @GetMapping("/list")
-    public List<FileVo> getChildFiles(@RequestParam(value="fileId", defaultValue = "0") String fileId) {
-        return commonFileService.getResourceList(fileId);
+    @PostMapping("/list")
+    public List<FileVo> getChildFiles(@RequestBody CommonFileCondition fileParam) {
+        return commonFileService.getResourceList(fileParam);
     }
 
     /**
