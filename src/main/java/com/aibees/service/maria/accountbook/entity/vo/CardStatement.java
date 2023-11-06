@@ -13,6 +13,7 @@ public class CardStatement {
     private String times;
     private String approvNum;
     private String cardNo;
+    private String cardNm;
     private String usageCd;
     private String usageNm;
     private Integer amount;

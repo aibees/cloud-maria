@@ -45,8 +45,8 @@ public class CommonController {
      * @param fileId
      * @return
      */
-    @GetMapping("/{fileId}")
-    public FileVo getFileInfoDetail(@PathVariable String fileId) {
+    @GetMapping("/detail")
+    public FileVo getFileInfoDetail(@RequestParam String fileId) {
         return commonFileService.getFileInfo(fileId);
     }
 

@@ -1,8 +1,10 @@
 package com.aibees.service.maria.accountbook.service;
 
 import com.aibees.service.maria.accountbook.entity.dto.CardDto;
+import com.aibees.service.maria.accountbook.entity.mapper.AccountMapper;
 import com.aibees.service.maria.accountbook.entity.vo.CardStatement;
 import com.aibees.service.maria.common.StringUtils;
+import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,10 +20,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class AccountService {
 
-    public List<CardStatement> getCardStatementList(CardDto param) {
-        return null;
+    private final AccountMapper accountMapper;
+
+    public List<CardStatement> getCardStatementList(CardDto cardParam) {
+        return accountMapper.selectCardStatementList(cardParam);
     }
 
     /**

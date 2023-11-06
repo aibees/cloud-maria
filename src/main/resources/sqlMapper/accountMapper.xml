@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountMapper">
+    <resultMap id="cardStatementMapping" type="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
+        <result property="ymd" column="ymd" />
+        <result property="times" column="times" />
+        <result property="approvNum" column="approv_num" />
+        <result property="cardNo" column="card_no" />
+        <result property="cardNm" column="card_nm" />
+        <result property="usageCd" column="usage_cd" />
+        <result property="usageNm" column="usage_nm" />
+        <result property="amount" column="amount" />
+        <result property="remark" column="remark" />
+    </resultMap>
+
+    <select id="selectCardStatementList" parameterType="com.aibees.service.maria.accountbook.entity.dto.CardDto" resultMap="cardStatementMapping">
+        select acs.ymd                           as ymd
+              ,acs.times                         as times
+              ,acs.approv_num                    as approv_num
+              ,acs.card_no                       as card_no
+              ,aci.card_name                     as card_nm
+              ,acs.usage                         as usage_cd
+              ,(select x.name
+                  from account_setting_detail x
+                 where x.header_id = 4
+                   and x.code = acs.usage)       as usage_nm
+              ,acs.amount                        as amount
+              ,acs.remark                        as remark
+          from account_card_statement acs
+          left join account_card_info aci on acs.card_no = aci.card_no
+         where 1=1
+        <if test="ymdFrom != null or ymdTo != ''">
+            ymd between #{ymdFrom} and #{ymdTo}
+        </if>
+        <if test="cardNo != null or cardNo != ''">
+            and card_no = #{cardNo}
+        </if>
+        <if test="remark != null or remark != ''">
+            and remark like concat('%',  #{remark}, '%')
+        </if>
+        <if test="usage != null or usage != ''">
+            and usage = #{usage}
+        </if>
+        <if test="amountFrom != null or amountTo != ''">
+            and amount between #{amountFrom} and #{amountTo}
+        </if>
+    </select>
+
+</mapper>

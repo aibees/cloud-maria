@@ -33,8 +33,6 @@ public class CommonFileService {
      * @return
      */
     public List<FileVo> getResourceList(CommonFileCondition fileParam) {
-        log.info(fileParam.toString());
-        log.info(Long.toString(fileParam.getFileId()));
         CommonFileEntity fileData = fileStoreRepo.findOneById(fileParam.getFileId());
 
         return fileStoreRepo.findAllByParentId(fileData.getId())
@@ -49,7 +47,7 @@ public class CommonFileService {
                                 .build();
 
                         Map<String, String> paths = getFullDirPathAll(curFile);
-                        curFile.setPath(paths.get(ABS_PATH_ROUTE));
+                        curFile.setPath(paths.get(ABS_PATH_ROUTE).replace("/app/maria", ""));
                         curFile.setPathName(paths.get(ABS_PATH_NAME));
 
                         return curFile;
@@ -63,6 +61,7 @@ public class CommonFileService {
      * @return
      */
     public FileVo getFileInfo(String fileId) {
+        System.out.println("fileId : " + fileId);
         CommonFileEntity entity = fileStoreRepo.findOneById(Long.parseLong(fileId));
 
         FileVo data = FileVo.builder()
@@ -159,7 +158,7 @@ public class CommonFileService {
     }
 
     private String getFullDirPath(FileVo file) {
-        return this.getFullDirPathAll(file).get(ABS_PATH_ROUTE);
+        return this.getFullDirPathAll(file).get(ABS_PATH_ROUTE).replace("/app/maria", "");
     }
 
     private String getFullDirPathName(FileVo file) {
