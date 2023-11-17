@@ -48,4 +48,40 @@
         </if>
     </select>
 
+    <select id="getImportedCardStatementTmp" parameterType="java.lang.String" resultMap="cardStatementMapping">
+        select concat(substring(acse.ymd, 1, 4), '.', substring(acse.ymd, 5, 2), '.', substring(acse.ymd, 7, 2))
+              ,concat(substring(acse.times, 1, 2), ':', substring(acse.times, 3, 2), ':', substring(acse.times, 5, 2))
+              ,acse.approv_num
+              ,acse.card_no
+              ,acse.card_nm
+              ,acse.usage_cd
+              ,acse.usage_nm
+              ,acse.amount
+              ,acse.remark
+          from account_card_statement_exceltmp acse
+         where acse.excelfile_id = #{fileId}
+         order by acse.ymd, acse.times
+    </select>
+
+    <insert id="insertCardStatementTmp" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
+        insert account_card_statement_exceltmp
+        values (
+         #{fileHash}
+        ,#{ymd}
+        ,#{approvNum}
+        ,#{cardNo}
+        ,(select aci.card_name
+            from account_card_info aci
+           where aci.card_no = #{cardNo}
+         )
+        ,#{usageCd}
+        ,(select asd.name
+            from account_setting_detail asd
+           where asd.header_id
+             and asd.code = #{usageCd})
+        ,#{amount}
+        ,#{remark}
+        ,#{times}
+        )
+    </insert>
 </mapper>

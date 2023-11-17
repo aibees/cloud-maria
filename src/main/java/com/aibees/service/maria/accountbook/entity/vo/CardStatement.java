@@ -20,4 +20,7 @@ public class CardStatement {
     private String remark;
     private String apYn;
     private String status;
+
+    // exceltmp에서 사용
+    private String fileHash;
 }

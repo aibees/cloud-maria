@@ -4,6 +4,7 @@ import com.aibees.service.maria.accountbook.entity.dto.CardDto;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountMapper;
 import com.aibees.service.maria.accountbook.entity.vo.CardStatement;
 import com.aibees.service.maria.common.StringUtils;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -34,13 +38,15 @@ public class AccountService {
      * @param type
      * @param file
      */
-    public void excelParse(String type, MultipartFile file) {
+    public Map<String, Object> excelParse(String type, MultipartFile file) {
         System.out.println("type : " + type);
+        Map<String, Object> result = new HashMap<>();
         try {
             List<CardStatement> cardStatementList = null;
 
             Workbook workbook = null;
             String[] fileName = file.getOriginalFilename().split("\\.");
+            String fileHashName = this.createFileNameHash();
 
             if (fileName[fileName.length-1].equals("xlsx")) {
                 workbook = new XSSFWorkbook(file.getInputStream());
@@ -49,38 +55,59 @@ public class AccountService {
             }
 
             if(workbook == null) {
-                return;
+                return ImmutableMap.of(
+                        "result", "FAILED",
+                        "message", "WORKBOOK is null",
+                        "data", null
+                );
             }
 
-            if ("HANACARD".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForHana(workbook))
+            if ("HANA".equals(type)) {
+                cardStatementList = Objects.requireNonNull(excelParseForHana(workbook, fileHashName))
                         .stream()
                         .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
                         .collect(Collectors.toList());
             } else if("SAMSUNG".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForSamsung(workbook));
+                cardStatementList = Objects.requireNonNull(excelParseForSamsung(workbook, fileHashName));
             } else if("HYUNDAE".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForHyundae(workbook));
+                cardStatementList = Objects.requireNonNull(excelParseForHyundae(workbook, fileHashName));
             }
 
             if(cardStatementList != null) {
-
+                if(!insertToExcelTmp(cardStatementList)) {
+                    throw new Exception("Error Occured in Excel Tmp Insert");
+                }
+            } else {
+                throw new Exception("CardStatement is Null");
             }
 
+            return ImmutableMap.of(
+                    "result", "SUCCESS",
+                    "message", "SUCCESS",
+                    "fileId", fileHashName
+            );
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            return ImmutableMap.of(
+                    "result", "FAILED",
+                    "message", ioe.getCause()
+            );
+        } catch(Exception e) {
+            return ImmutableMap.of(
+                    "result", "FAILED",
+                    "message", e.getMessage()
+            );
         }
     }
 
-    private List<CardStatement> excelParseForHyundae(Workbook workbook) throws IOException {
+    private List<CardStatement> excelParseForHyundae(Workbook workbook, String fileHash) throws IOException {
         return null;
     }
 
-    private List<CardStatement> excelParseForSamsung(Workbook workbook) throws IOException {
+    private List<CardStatement> excelParseForSamsung(Workbook workbook, String fileHash) throws IOException {
         return null;
     }
 
-    private List<CardStatement> excelParseForHana(Workbook workbook) throws IOException {
+    private List<CardStatement> excelParseForHana(Workbook workbook, String fileHash) throws IOException {
         int HEADER_ROW = 3;
         AtomicInteger DATA_ROW = new AtomicInteger(4);
 
@@ -135,10 +162,12 @@ public class AccountService {
             DATA_ROW.set(DATA_ROW.get()+1);
         }
 
+
         return dataListByRow.keySet().stream().map(k -> {
             List<String> data = dataListByRow.get(k);
 
             return CardStatement.builder()
+                    .fileHash(fileHash)
                     .ymd(data.get(0).replace(".", ""))
                     .times(data.get(1).replace(":", ""))
                     .cardNo(data.get(2).split(" ")[1])
@@ -147,10 +176,36 @@ public class AccountService {
                     .amount(Integer.parseInt(data.get(5).split("\\.")[0]))
                     .apYn(data.get(9))
                     .status(data.get(13))
-                    .usageNm("미분류")
                     .usageCd("FF")
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    public boolean insertToExcelTmp(List<CardStatement> datalist) {
+        AtomicInteger resultCnt = new AtomicInteger(0);
+        int listCnt = datalist.size();
+        boolean result = true;
+
+        datalist.forEach(state -> {
+            int insertResult = accountMapper.insertCardStatementTmp(state);
+            resultCnt.addAndGet(insertResult);
+        });
+
+        if(listCnt != resultCnt.get()) {
+            result = false;
+        }
+        return result;
+    }
+
+    public String createFileNameHash() {
+        return LocalDateTime
+                .now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                .concat(StringUtils.getRandomStr(4));
+    }
+
+    public List<CardStatement> getImportExcelDataList(String fileId) {
+        return accountMapper.getImportedCardStatementTmp(fileId);
     }
 
     private String getCellDataToStr(Cell cell) {

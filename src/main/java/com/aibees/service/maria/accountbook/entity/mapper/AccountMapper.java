@@ -13,4 +13,8 @@ public interface AccountMapper {
 
     // card Account
     List<CardStatement> selectCardStatementList(CardDto param);
+
+    //// excel import tmp
+    int insertCardStatementTmp(CardStatement param);
+    List<CardStatement> getImportedCardStatementTmp(String fileId);
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/account")
@@ -17,13 +18,17 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping("/file")
-    public String getExcelFiles(
+    public Map<String, Object> getExcelFiles(
             @RequestParam("type") String type,
             @RequestParam("file") MultipartFile file
             ) {
-        accountService.excelParse(type, file);
 
-        return "fileTest";
+        return accountService.excelParse(type, file);
+    }
+
+    @GetMapping("/file/list")
+    public List<CardStatement> getExcelImportedList(@RequestParam String fileId) {
+        return accountService.getImportExcelDataList(fileId);
     }
 
     @PostMapping("/list")
