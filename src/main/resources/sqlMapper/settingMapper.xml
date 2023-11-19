@@ -35,6 +35,24 @@
          where asd.header_id = #{headerId}
     </select>
 
+    <select id="selectSettingDetailListWithHeader" parameterType="java.util.Map" resultType="java.util.Map">
+        select asd.code
+              ,asd.name
+              ,asd.sort
+              ,asd.attribute01
+              ,asd.attribute02
+              ,asd.attribute03
+              ,asd.attribute04
+              ,asd.attribute05
+          from account_setting_detail asd,
+               account_setting_header ash
+         where asd.header_id = ash.id
+           and ash.depart   = #{depart}
+           and ash.category = #{category}
+           and ash.code     = #{title}
+         order by asd.sort
+    </select>
+
     <select id="getHeaderDepartList" resultType="java.lang.String">
         select distinct depart
           from account_setting_header

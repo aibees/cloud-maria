@@ -12,6 +12,8 @@ public interface SettingMapper {
 
     public List<Map<String, Object>> selectSettingDetailList(Integer headerId);
 
+    public List<Map<String, Object>> selectSettingDetailListWithHeader(Map<String, Object> param);
+
     public List<String> getHeaderDepartList();
 
     public List<String> getHeaderCategoryList();

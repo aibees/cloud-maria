@@ -1,6 +1,7 @@
 package com.aibees.service.maria.common.web;
 
 import lombok.AllArgsConstructor;
+import org.apache.ibatis.util.MapUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,10 @@ public class SettingService {
     public List<Map<String, Object>> getSettingDetail(String headerId) {
         System.out.println("headerId : " + headerId);
         return commonMapper.selectSettingDetailList(Integer.parseInt(headerId));
+    }
+
+    public List<Map<String, Object>> getSettingDetailWithHeader(Map<String, Object> param) {
+        return commonMapper.selectSettingDetailListWithHeader(param);
     }
 
     public List<String> getSettingOptions(String option) {

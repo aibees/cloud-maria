@@ -49,8 +49,8 @@
     </select>
 
     <select id="getImportedCardStatementTmp" parameterType="java.lang.String" resultMap="cardStatementMapping">
-        select concat(substring(acse.ymd, 1, 4), '.', substring(acse.ymd, 5, 2), '.', substring(acse.ymd, 7, 2))
-              ,concat(substring(acse.times, 1, 2), ':', substring(acse.times, 3, 2), ':', substring(acse.times, 5, 2))
+        select concat(substring(acse.ymd, 1, 4), '.', substring(acse.ymd, 5, 2), '.', substring(acse.ymd, 7, 2)) as ymd
+              ,concat(substring(acse.times, 1, 2), ':', substring(acse.times, 3, 2), ':', substring(acse.times, 5, 2)) as times
               ,acse.approv_num
               ,acse.card_no
               ,acse.card_nm

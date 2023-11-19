@@ -28,8 +28,9 @@ dependencies {
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'com.drewnoakes:metadata-extractor:2.11.0'
-    compile group: 'org.apache.poi', name: 'poi', version: '3.11'
-    compile group: 'org.apache.poi', name: 'poi-ooxml', version: '3.11'
+    implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+    implementation group: 'org.apache.poi', name: 'poi', version: '3.11'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.11'
 
 //    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'commons-io:commons-io:2.4'
