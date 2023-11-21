@@ -1,5 +1,7 @@
 package com.aibees.service.maria.common;
 
+import com.google.common.base.Strings;
+
 import java.util.Random;
 
 public class StringUtils {
@@ -10,6 +12,10 @@ public class StringUtils {
 
     public static boolean isNotNull(String str) {
         return !isNull(str);
+    }
+
+    public static boolean isEquals(String s1, String s2) {
+        return s1.equals(s2);
     }
 
     public static String UuidNumberFormat(int num) {
@@ -42,5 +48,29 @@ public class StringUtils {
         }
 
         return sb.toString();
+    }
+
+    public static String dateStrParseToYMD(String ymd, String tokenizer) {
+        if(isNumeric(ymd)) {
+            ymd = DateUtils.convertDateCntToDateFormat(Integer.parseInt(ymd), tokenizer);
+        }
+
+        String[] splitted = ymd.split(tokenizer);
+        String yyyy = splitted[0];
+        String mm = Strings.padStart(splitted[1], 2, '0');
+        String dd = Strings.padStart(splitted[2], 2, '0');
+        return yyyy + mm + dd;
+    }
+
+    public static boolean isNumeric(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            double d = Double.parseDouble(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
     }
 }

@@ -35,4 +35,9 @@ public class AccountController {
     public List<CardStatement> getCardStatementList(@RequestBody CardDto param) {
         return accountService.getCardStatementList(param);
     }
+
+    @PostMapping("/transfer")
+    public Map<String, Object> transferData(@RequestBody Map<String, Object> data) {
+        return accountService.transferData(data);
+    }
 }

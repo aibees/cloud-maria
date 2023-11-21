@@ -3,6 +3,7 @@ package com.aibees.service.maria.accountbook.service;
 import com.aibees.service.maria.accountbook.entity.dto.CardDto;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountMapper;
 import com.aibees.service.maria.accountbook.entity.vo.CardStatement;
+import com.aibees.service.maria.accountbook.util.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.StringUtils;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
@@ -35,12 +36,11 @@ public class AccountService {
 
     /**
      * 엑셀 업로드 파일 파싱 후 Insert, 재조회
-     * @param type
-     * @param file
+     * @param String, MultipartFile
+     * @param Map
      */
     public Map<String, Object> excelParse(String type, MultipartFile file) {
         System.out.println("type : " + type);
-        Map<String, Object> result = new HashMap<>();
         try {
             List<CardStatement> cardStatementList = null;
 
@@ -62,16 +62,7 @@ public class AccountService {
                 );
             }
 
-            if ("HANA".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForHana(workbook, fileHashName))
-                        .stream()
-                        .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
-                        .collect(Collectors.toList());
-            } else if("SAMSUNG".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForSamsung(workbook, fileHashName));
-            } else if("HYUNDAE".equals(type)) {
-                cardStatementList = Objects.requireNonNull(excelParseForHyundae(workbook, fileHashName));
-            }
+            cardStatementList = ExcelParseHandler.excelParseCard(workbook, fileHashName, type);
 
             if(cardStatementList != null) {
                 if(!insertToExcelTmp(cardStatementList)) {
@@ -87,11 +78,13 @@ public class AccountService {
                     "fileId", fileHashName
             );
         } catch (IOException ioe) {
+            ioe.printStackTrace();
             return ImmutableMap.of(
                     "result", "FAILED",
-                    "message", ioe.getCause()
+                    "message", ioe.getMessage()
             );
         } catch(Exception e) {
+            e.printStackTrace();
             return ImmutableMap.of(
                     "result", "FAILED",
                     "message", e.getMessage()
@@ -99,89 +92,49 @@ public class AccountService {
         }
     }
 
-    private List<CardStatement> excelParseForHyundae(Workbook workbook, String fileHash) throws IOException {
-        return null;
-    }
+    public Map<String, Object> transferData(Map<String, Object> data) {
+        List<Map<String, Object>> statmentList = (List<Map<String, Object>>)data.get("data");
+        String fileHash = data.get("fileHash").toString();
+        String result = "SUCCESS";
+        String message = "SUCCESS";
 
-    private List<CardStatement> excelParseForSamsung(Workbook workbook, String fileHash) throws IOException {
-        return null;
-    }
-
-    private List<CardStatement> excelParseForHana(Workbook workbook, String fileHash) throws IOException {
-        int HEADER_ROW = 3;
-        AtomicInteger DATA_ROW = new AtomicInteger(4);
-
-        Sheet dataSheet = workbook.getSheetAt(0);
-        List<String> colList = new ArrayList<>();
-        Map<Integer, List<String>> dataListByRow = new HashMap<>();
-
-        int colCnt = 0;
-        Row headerRow = dataSheet.getRow(HEADER_ROW);
-
-        while(true) {
-            String c;
-            try {
-                c = headerRow.getCell(colCnt).getStringCellValue().replace("\n", " ");
-            } catch (NullPointerException npe) {
-                break;
+        try {
+            int dataSize = data.size();
+            AtomicInteger resultCnt = new AtomicInteger(0);
+            boolean resFlag = true;
+            if (dataSize > 0) {
+                resFlag = insertToMain(statmentList);
+                if(resFlag)
+                    accountMapper.deleteCardStatementTmp(fileHash);
             }
-            if(StringUtils.isNull(c)) {
-                break;
+
+            if (!resFlag) {
+                result = "FAILED";
+                message = "COMPLETED SIZE IS DIFFERENT";
             }
-            colList.add(c);
-            colCnt++;
+        } catch(Exception e) {
+            return ImmutableMap.of(
+                    "result", "FAILED",
+                    "message", e.getMessage()
+            );
         }
 
-        while(true) {
-            int whileExit = 0;
-            Row currentRow = dataSheet.getRow(DATA_ROW.get());
-            List<String> rowData = new ArrayList<>();
-
-            int idx = 0;
-            String d;
-            for(; idx < colList.size(); idx++) {
-
-                try {
-                    d = getCellDataToStr(currentRow.getCell(idx));
-                } catch (NullPointerException npe) {
-                    whileExit = -1;
-                    break;
-                }
-                if(idx == 0 && StringUtils.isNull(d)) {
-                    whileExit = -1;
-                    break;
-                }
-
-                rowData.add(d);
-            }
-
-            if(whileExit < 0)
-                break;
-
-            dataListByRow.put(DATA_ROW.get()-4, rowData);
-            DATA_ROW.set(DATA_ROW.get()+1);
-        }
-
-
-        return dataListByRow.keySet().stream().map(k -> {
-            List<String> data = dataListByRow.get(k);
-
-            return CardStatement.builder()
-                    .fileHash(fileHash)
-                    .ymd(data.get(0).replace(".", ""))
-                    .times(data.get(1).replace(":", ""))
-                    .cardNo(data.get(2).split(" ")[1])
-                    .approvNum(data.get(3))
-                    .remark(data.get(4))
-                    .amount(Integer.parseInt(data.get(5).split("\\.")[0]))
-                    .apYn(data.get(9))
-                    .status(data.get(13))
-                    .usageCd("FF")
-                    .build();
-        }).collect(Collectors.toList());
+        return ImmutableMap.of(
+                "result", result,
+                "message", message
+        );
     }
 
-    public boolean insertToExcelTmp(List<CardStatement> datalist) {
+    /******************************
+     ****** Private Function ******
+     ******************************/
+
+    /**
+     * Exceltmp 테이블로 전송 (건 별로 insert)
+     * @param datalist
+     * @return boolean
+     */
+    private boolean insertToExcelTmp(List<CardStatement> datalist) {
         AtomicInteger resultCnt = new AtomicInteger(0);
         int listCnt = datalist.size();
         boolean result = true;
@@ -197,24 +150,34 @@ public class AccountService {
         return result;
     }
 
-    public String createFileNameHash() {
-        return LocalDateTime
-                .now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
-                .concat(StringUtils.getRandomStr(4));
+    private boolean insertToMain(List<Map<String, Object>> datalist) {
+        AtomicInteger resultCnt = new AtomicInteger(0);
+        int listCnt = datalist.size();
+        boolean result = true;
+
+        datalist.forEach(state -> {
+            int insertResult = accountMapper.insertCardStatement(state);
+            resultCnt.addAndGet(insertResult);
+        });
+
+        if(listCnt > resultCnt.get()) { // duplicate key 경우 2를 반환하기에 해당 경우의 수도 염두두
+           result = false;
+        }
+        return result;
     }
 
     public List<CardStatement> getImportExcelDataList(String fileId) {
         return accountMapper.getImportedCardStatementTmp(fileId);
     }
 
-    private String getCellDataToStr(Cell cell) {
-        if(cell.getCellType() == Cell.CELL_TYPE_STRING) {
-            return cell.getStringCellValue().replace("\n", " ");
-        } else if(cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-            return Double.toString(cell.getNumericCellValue());
-        } else {
-            return cell.getDateCellValue().toString();
-        }
+    /**
+     * tmp 테이블에서 파일 단위로 조회하기 위한 임시 Hash Value
+     * @return String
+     */
+    private String createFileNameHash() {
+        return LocalDateTime
+                .now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                .concat(StringUtils.getRandomStr(4));
     }
 }

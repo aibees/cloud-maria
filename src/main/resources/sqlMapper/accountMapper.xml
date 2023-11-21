@@ -63,16 +63,21 @@
          order by acse.ymd, acse.times
     </select>
 
+    <select id="getTmpFileHashName"
+
     <insert id="insertCardStatementTmp" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
         insert account_card_statement_exceltmp
         values (
          #{fileHash}
         ,#{ymd}
         ,#{approvNum}
-        ,#{cardNo}
+        ,(select aci.card_no
+            from account_card_info aci
+           where aci.card_no like concat(#{cardNo}, '%')
+         )
         ,(select aci.card_name
             from account_card_info aci
-           where aci.card_no = #{cardNo}
+           where aci.card_no like concat(#{cardNo}, '%')
          )
         ,#{usageCd}
         ,(select asd.name
@@ -83,5 +88,34 @@
         ,#{remark}
         ,#{times}
         )
+    </insert>
+
+    <delete id="deleteCardStatementTmp" parameterType="java.lang.String">
+        delete from account_card_statement_exceltmp
+         where excelfile_id = #{fileHash}
+    </delete>
+
+    <insert id="insertCardStatement" parameterType="java.util.Map">
+        insert account_card_statement (
+         `ymd`
+        ,`approv_num`
+        ,`card_no`
+        ,`usage`
+        ,`amount`
+        ,`remark`
+        ,`times`
+        )
+        values (
+         replace(#{ymd}, '.', '')
+        ,#{approvNum}
+        ,#{cardNo}
+        ,#{usageCd}
+        ,#{amount}
+        ,#{remark}
+        ,replace(#{times}, ':', '')
+        )
+        on duplicate key
+        update `usage` = #{usageCd}
+              , remark = #{remark}
     </insert>
 </mapper>
