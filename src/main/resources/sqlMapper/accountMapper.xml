@@ -3,6 +3,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountMapper">
+    <select id="selectCardInfoForOption" resultType="java.util.Map">
+        select aci.card_no as   card_no
+              ,aci.card_name as card_name
+        from account_card_info aci
+    </select>
+
     <resultMap id="cardStatementMapping" type="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
         <result property="ymd" column="ymd" />
         <result property="times" column="times" />
@@ -10,41 +16,49 @@
         <result property="cardNo" column="card_no" />
         <result property="cardNm" column="card_nm" />
         <result property="usageCd" column="usage_cd" />
+        <result property="usageColor" column="usage_color" />
         <result property="usageNm" column="usage_nm" />
         <result property="amount" column="amount" />
         <result property="remark" column="remark" />
     </resultMap>
 
     <select id="selectCardStatementList" parameterType="com.aibees.service.maria.accountbook.entity.dto.CardDto" resultMap="cardStatementMapping">
-        select acs.ymd                           as ymd
-              ,acs.times                         as times
-              ,acs.approv_num                    as approv_num
-              ,acs.card_no                       as card_no
-              ,aci.card_name                     as card_nm
-              ,acs.usage                         as usage_cd
+        select concat(substr(acs.ymd, 1, 4), '-', substr(acs.ymd, 5, 2),'-', substr(acs.ymd, 7, 2))       as ymd
+              ,concat(substr(acs.times, 1, 2), ':', substr(acs.times, 3, 2),':', substr(acs.times, 5, 2)) as times
+              ,acs.approv_num                                                                             as approv_num
+              ,acs.card_no                                                                                as card_no
+              ,aci.card_name                                                                              as card_nm
+              ,acs.usage                                                                                  as usage_cd
+              ,coalesce((select asd.attribute03
+                  from account_setting_detail asd
+                 where asd.header_id = 4
+                   and asd.code = acs.usage), 'EEEEEE')     as usage_color
               ,(select x.name
                   from account_setting_detail x
                  where x.header_id = 4
-                   and x.code = acs.usage)       as usage_nm
-              ,acs.amount                        as amount
-              ,acs.remark                        as remark
+                   and x.code = acs.usage)                  as usage_nm
+              ,acs.amount                                   as amount
+              ,acs.remark                                   as remark
           from account_card_statement acs
           left join account_card_info aci on acs.card_no = aci.card_no
          where 1=1
         <if test="ymdFrom != null or ymdTo != ''">
-            ymd between #{ymdFrom} and #{ymdTo}
+            and acs.ymd between #{ymdFrom} and #{ymdTo}
         </if>
-        <if test="cardNo != null or cardNo != ''">
-            and card_no = #{cardNo}
+<!--        <if test="cardNo != null or cardNo != ''">-->
+<!--            and acs.card_no = #{cardNo}-->
+<!--        </if>-->
+        <if test="remark != null and remark != ''">
+            and acs.remark like concat('%',  #{remark}, '%')
         </if>
-        <if test="remark != null or remark != ''">
-            and remark like concat('%',  #{remark}, '%')
+        <if test="usage != null and usage != ''">
+            and acs.usage like concat('%',  #{usage}, '%')
         </if>
-        <if test="usage != null or usage != ''">
-            and usage = #{usage}
+        <if test="amountFrom != null and amountFrom != ''">
+            and <![CDATA[acs.amount >= #{amountFrom}]]>
         </if>
-        <if test="amountFrom != null or amountTo != ''">
-            and amount between #{amountFrom} and #{amountTo}
+        <if test="amountTo != null and amountTo != ''">
+            and <![CDATA[acs.amount <= #{amountTo}]]>
         </if>
     </select>
 
@@ -63,7 +77,30 @@
          order by acse.ymd, acse.times
     </select>
 
-    <select id="getTmpFileHashName"
+    <select id="selectTmpFileHashName" parameterType="java.lang.String" resultType="java.util.Map">
+        select file_id   as fileId
+              ,file_name as fileName
+          from account_import_file
+         where file_type = #{fileType}
+    </select>
+
+    <insert id="insertTmpFileHashName" parameterType="java.util.Map">
+        insert into account_import_file (
+            `file_id`,
+            `file_type`,
+            `file_name`
+        ) values (
+            #{fileId},
+            #{fileType},
+            #{fileName}
+        )
+    </insert>
+
+    <delete id="deleteTmpFileHashName" parameterType="java.util.Map">
+        delete from account_import_file
+         where file_id = #{fileId}
+           and file_type = #{fileType}
+    </delete>
 
     <insert id="insertCardStatementTmp" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
         insert account_card_statement_exceltmp

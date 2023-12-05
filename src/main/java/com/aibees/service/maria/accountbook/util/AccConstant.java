@@ -12,4 +12,7 @@ public interface AccConstant {
 
     public static final String DEFAULT_TIMES = "00:00:00";
     public static final String EMPTY_STR = "";
+
+    public static final String IMPORT_CARD = "CARD";
+    public static final String IMPORT_BANK = "BANK";
 }

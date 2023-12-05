@@ -16,6 +16,7 @@ public class CardStatement {
     private String cardNm;
     private String usageCd;
     private String usageNm;
+    private String usageColor;
     private Integer amount;
     private String remark;
     private String apYn;
