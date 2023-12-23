@@ -88,6 +88,7 @@ public class StaticsService {
     }
 
     private Map<String, Object> createDoughnutDataset(Map<String, Data> dataMap) {
+        System.out.println("createDoughnutDataset");
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> dataSets = new ArrayList<>();
         Map<String, Object> dataSet = new HashMap<>();

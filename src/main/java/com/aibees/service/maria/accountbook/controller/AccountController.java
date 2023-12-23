@@ -31,6 +31,21 @@ public class AccountController {
         return accountService.getCardStatementList(param);
     }
 
+    @PostMapping("/card/paytext")
+    public Map<String, Object> registCardPaymentText(@RequestBody Map<String, Object> param) {
+        return accountService.registCardPaymentText(param);
+    }
+
+    @GetMapping("/card/recent")
+    public List<Map<String, Object>> getRecentUseCardStatementList() {
+        return accountService.getRecentUseCardStatementList();
+    }
+
+    @GetMapping("/card/status")
+    public List<Map<String, Object>> getCardLimitStatusList() {
+        return accountService.getRemainAmountByCard();
+    }
+
     // Bank API
     @GetMapping("/file/list/bank")
     public List<BankStatement> getBankExcelImportedList(@RequestParam String fileId) {

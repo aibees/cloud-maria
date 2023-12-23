@@ -17,7 +17,7 @@ public class CardStatement {
     private String usageCd;
     private String usageNm;
     private String usageColor;
-    private Integer amount;
+    private Long amount;
     private String remark;
     private String apYn;
     private String status;

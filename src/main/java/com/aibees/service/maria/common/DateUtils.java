@@ -2,10 +2,14 @@ package com.aibees.service.maria.common;
 
 import com.google.common.base.Strings;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Date;
 
 public class DateUtils {
+
+    public static final String DEFAULT_DATE_FORMAT ="yyyy/MM/ddTHH:mm:ss";
 
     public static String convertDateCntToDateFormat(int dateCnt, String tokenizer) {
         LocalDate calculedDate = LocalDate.of(1900, Month.JANUARY, 1).plusDays(dateCnt-2);
@@ -19,5 +23,15 @@ public class DateUtils {
 
     public static String convertDateCntToDateFormat(int dateCnt) {
         return convertDateCntToDateFormat(dateCnt, null);
+    }
+
+    public static String getTodayStr(String formatStr) {
+        SimpleDateFormat format = new SimpleDateFormat(formatStr);
+        Date today = new Date();
+        return format.format(today);
+    }
+
+    public static String getTodayStr() {
+        return getTodayStr(DEFAULT_DATE_FORMAT);
     }
 }

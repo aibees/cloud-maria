@@ -4,18 +4,19 @@ import com.aibees.service.maria.accountbook.entity.dto.CardDto;
 import com.aibees.service.maria.accountbook.entity.vo.CardStatement;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface AccountMapper {
-
-    // bank account
+public interface AccountCardMapper {
 
     // card
     List<Map<String, Object>> selectCardInfoForOption();
     List<CardStatement> selectCardStatementList(CardDto param);
     int insertCardStatement(Map<String, Object> param);
+    List<Map<String, Object>> selectRecentCardStatement();
+    Long selectUsedAmountByYm(Map<String, Object> param);
 
     //// excel import tmp
     int insertCardStatementTmp(CardStatement param);
@@ -26,4 +27,7 @@ public interface AccountMapper {
     int insertTmpFileHashName(Map<String, Object> param);
     int deleteTmpFileHashName(Map<String, Object> param);
     List<Map<String, Object>> selectTmpFileHashName(String fileType);
+
+    //// card daily text sms
+    int insertCardStatementSms(CardStatement param) throws SQLIntegrityConstraintViolationException;
 }

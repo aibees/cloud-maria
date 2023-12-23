@@ -2,7 +2,7 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountMapper">
+<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountCardMapper">
     <select id="selectCardInfoForOption" resultType="java.util.Map">
         select aci.card_no as   card_no
               ,aci.card_name as card_name
@@ -62,6 +62,7 @@
         </if>
     </select>
 
+    <!--  엑셀 업로드 대상 조회  -->
     <select id="getImportedCardStatementTmp" parameterType="java.lang.String" resultMap="cardStatementMapping">
         select concat(substring(acse.ymd, 1, 4), '.', substring(acse.ymd, 5, 2), '.', substring(acse.ymd, 7, 2)) as ymd
               ,concat(substring(acse.times, 1, 2), ':', substring(acse.times, 3, 2), ':', substring(acse.times, 5, 2)) as times
@@ -154,5 +155,76 @@
         on duplicate key
         update `usage` = #{usageCd}
               , remark = #{remark}
+    </insert>
+
+    <select id="selectRecentCardStatement" resultType="java.util.Map">
+        select concat( substr(x.ymd, 1, 4), '-', substr(x.ymd, 5, 2), '-', substr(x.ymd, 7, 2) ) as ymd
+              ,concat( substr(x.times, 1, 2), ':', substr(x.times, 3, 2) ) as times
+              ,x.remark
+              ,x.amount
+              ,(select aci.card_name from account_card_info aci where aci.card_no = x.card_no) as cardNm
+          from (
+                 select a.ymd, a.times, a.remark, a.amount, a.card_no
+                   from (
+                          select acs.ymd
+                                ,acs.times
+                                ,acs.remark
+                                ,acs.amount
+                                ,acs.card_no
+                            from account_card_statement acs
+                           order by acs.ymd desc, acs.times desc
+                           limit 5
+                        ) a
+
+                  union all
+
+                 select b.ymd
+                       ,b.times
+                       ,b.remark
+                       ,b.amount
+                       ,b.card_no
+                  from (
+                         select acss.ymd
+                               ,acss.times
+                               ,acss.remark
+                               ,acss.amount
+                               ,acss.card_no
+                           from account_card_statement_sms acss
+                          order by acss.ymd desc, acss.times desc
+                          limit 5
+                       ) b
+               ) x
+         order by x.ymd desc, x.times desc
+         limit 5
+    </select>
+
+    <select id="selectUsedAmountByYm" parameterType="java.util.Map" resultType="java.lang.Long">
+        select sum(a.amount)
+          from (select acs.amount
+                  from account_card_statement acs
+                 where acs.card_no = #{cardNo}
+                   and substr(acs.ymd, 1, 6) = #{ym}
+                union all
+                select acss.amount
+                  from account_card_statement_sms acss
+                 where acss.card_no = #{cardNo}
+                   and substr(acss.ymd, 1, 6) = #{ym}
+               ) a
+    </select>
+
+    <insert id="insertCardStatementSms" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
+        insert into account_card_statement_sms (
+        `ymd`,
+        `times`,
+        `card_no`,
+        `amount`,
+        `remark`
+        ) values (
+        #{ymd},
+        #{times},
+        #{cardNo},
+        #{amount},
+        #{remark}
+        )
     </insert>
 </mapper>
