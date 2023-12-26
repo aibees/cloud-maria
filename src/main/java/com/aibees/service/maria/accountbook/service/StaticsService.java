@@ -1,12 +1,10 @@
 package com.aibees.service.maria.accountbook.service;
 
-import com.aibees.service.maria.accountbook.entity.mapper.StaticsMapper;
+import com.aibees.service.maria.accountbook.entity.mapper.AccountStaticsMapper;
 import com.aibees.service.maria.accountbook.entity.staticsVo.Data;
 import com.aibees.service.maria.accountbook.entity.staticsVo.UsageData;
 import com.aibees.service.maria.common.MapUtils;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +13,7 @@ import java.util.*;
 @AllArgsConstructor
 public class StaticsService {
 
-    private final StaticsMapper staticsMapper;
+    private final AccountStaticsMapper staticsMapper;
 
     /**
      * 월 별 사용

@@ -30,6 +30,10 @@ public class ExcelParseHandler {
             parser = new ExcelParserForHYUNDAICARD();
         }
 
+        if(AccConstant.BANK_HANA.equals(type)) {
+            parser = new ExcelParserForHANABANK();
+        }
+
         return parser.parse(workbook, fileHash);
     }
 
@@ -80,7 +84,7 @@ public class ExcelParseHandler {
                     whileExit = -1;
                     break;
                 }
-                if(idx == 0 && (StringUtils.isNull(d) || StringUtils.isEquals("-", d))) {
+                if(idx == 0 && ( StringUtils.isNull(d.trim()) || StringUtils.isEquals("-", d))) {
                     whileExit = -1;
                     break;
                 }

@@ -20,14 +20,13 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    // Card API
-    @GetMapping("/file/list/card")
-    public List<CardStatement> getCardExcelImportedList(@RequestParam String fileId) {
-        return accountService.getImportExcelDataList(fileId);
+    @GetMapping("/file/list")
+    public Map<String, Object> getExcelImportedList(@RequestParam String fileId, @RequestParam String type) {
+        return accountService.getImportExcelDataList(type, fileId);
     }
 
     @PostMapping("/list/card")
-    public List<CardStatement> getCardStatementList(@RequestBody CardDto param) {
+    public List<CardStatement> getCardStatementList(@RequestBody Map<String, Object> param) {
         return accountService.getCardStatementList(param);
     }
 

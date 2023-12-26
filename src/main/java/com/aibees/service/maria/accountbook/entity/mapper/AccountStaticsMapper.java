@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface StaticsMapper {
+public interface AccountStaticsMapper extends AccountMapper {
 
     public List<Map<String, Object>> selectUsageDoughnutByYm(String ym);
 }

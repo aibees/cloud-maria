@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper
-public interface AccountCardMapper {
+public interface AccountCardMapper extends AccountMapper {
 
     // card
     List<Map<String, Object>> selectCardInfoForOption();
-    List<CardStatement> selectCardStatementList(CardDto param);
-    int insertCardStatement(Map<String, Object> param);
+    List<CardStatement> selectCardStatementList(Map<String, Object> param);
+    int insertCardStatement(CardStatement param);
     List<Map<String, Object>> selectRecentCardStatement();
     Long selectUsedAmountByYm(Map<String, Object> param);
 

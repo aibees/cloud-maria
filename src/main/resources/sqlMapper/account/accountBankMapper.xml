@@ -4,5 +4,51 @@
 
 <mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountBankMapper">
 
+    <insert id="insertBankStatementTmp" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardStatement">
+        insert account_bank_statement_exceltmp (
+         `excelfile_id`
+        ,`ymd`
+        ,`times`
+        ,`bank_id`
+        ,`bank_nm`
+        ,`entry`
+        ,`usage_cd`
+        ,`usage_nm`
+        ,`amount`
+        ,`remark`
 
+        ) values (
+        #{fileHash}
+        ,#{ymd}
+        ,#{times}
+        ,(select abi.bank_id
+            from account_bank_info abi
+           where abi.bank_acct like concat(#{bankAcct}, '%')
+        )
+        ,(select abi.bank_nm
+            from account_bank_info abi
+           where abi.bank_acct like concat(#{bankAcct}, '%')
+        )
+        ,#{entry}
+        ,#{usageCd}
+        ,(select asd.name
+            from account_setting_detail asd
+           where asd.header_id = 4
+             and asd.code = #{usageCd})
+        ,#{amount}
+        ,#{remark}
+        )
+    </insert>
+
+    <insert id="insertTmpFileHashName" parameterType="java.util.Map">
+        insert into account_import_file (
+        `file_id`,
+        `file_type`,
+        `file_name`
+        ) values (
+        #{fileId},
+        #{fileType},
+        #{fileName}
+        )
+    </insert>
 </mapper>

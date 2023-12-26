@@ -43,6 +43,6 @@ public class ExcelParserForHANACARD implements ExcelParser {
                 .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
                 .collect(Collectors.toList());
 
-        return ImmutableMap.of("result", statementList);
+        return ImmutableMap.of(AccConstant.CM_RESULT, statementList);
     }
 }
