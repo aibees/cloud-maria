@@ -30,4 +30,5 @@ public interface AccountCardMapper extends AccountMapper {
 
     //// card daily text sms
     int insertCardStatementSms(CardStatement param) throws SQLIntegrityConstraintViolationException;
+    int deleteCardStatementSms(List<CardStatement> param);
 }

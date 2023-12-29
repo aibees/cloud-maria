@@ -18,4 +18,5 @@ public interface AccountBankMapper extends AccountMapper {
     int insertTmpFileHashName(Map<String, Object> param);
 
     int deleteBankStatementTmp(String fileHash);
+    int deleteTmpFileHashName(Map<String, Object> param);
 }

@@ -2,7 +2,6 @@ package com.aibees.service.maria.accountbook.service;
 
 import com.aibees.service.maria.accountbook.domain.bank.BankData;
 import com.aibees.service.maria.accountbook.domain.card.CardData;
-import com.aibees.service.maria.accountbook.entity.dto.CardDto;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankInfoMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountCardInfoMapper;
@@ -116,27 +115,26 @@ public class AccountService {
         try {
             if(type.endsWith(IMPORT_CARD)) {
                 CardData card = CardData.createWithTransfer(type, AccConstant.TRX_MAIN, accountCardMapper, null);
+                card.setFileHashName(fileHash);
                 card.setCardStatementsWithMap(statementMap);
                 resFlag = card.transferData();
 
             } else if(type.endsWith(IMPORT_BANK)) {
                 BankData bank = BankData.createWithTransfer(type, AccConstant.TRX_MAIN, accountBankMapper, null);
+                bank.setFileHashName(fileHash);
                 bank.setBankStatementsWithMap(statementMap);
                 resFlag = bank.transferData();
+            } else {
+                throw new Exception("Invalid Type Error....");
             }
 
             if (!resFlag) {
                 throw new Exception("COMPLETED SIZE IS DIFFERENT");
             }
 
-            accountCardMapper.deleteTmpFileHashName(ImmutableMap.of(
-                "fileId", fileHash,
-                "fileType", IMPORT_CARD
-            ));
-
         } catch(Exception e) {
             return ImmutableMap.of(
-                    AccConstant.CM_RESULT, result,
+                    AccConstant.CM_RESULT, AccConstant.CM_FAILED,
                     "message", e.getMessage()
             );
         }
@@ -145,6 +143,68 @@ public class AccountService {
                 AccConstant.CM_RESULT, result,
                 "message", message
         );
+    }
+
+    public Map<String, Object> transferInfoData(Map<String, Object> data) {
+        List<Map<String, Object>> statementMap = (List<Map<String, Object>>)data.get("data");
+        String type = MapUtils.getString(data, "type");
+        boolean resFlag = true;
+
+        try {
+            if(type.endsWith(IMPORT_CARD)) {
+                CardData card = CardData.createWithInfo(cardInfoMapper);
+                card.setCardInfoStatementsWithMap(statementMap);
+                resFlag = card.transferData();
+
+            } else if(type.endsWith(IMPORT_BANK)) {
+                BankData bank = BankData.createWithInfo(bankInfoMapper);
+                bank.setBankInfoStatementsWithMap(statementMap);
+                resFlag = bank.transferData();
+            } else {
+                throw new Exception("Invalid Type Error...");
+            }
+
+            if (!resFlag) {
+                throw new Exception("COMPLETED SIZE IS DIFFERENT");
+            }
+
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_SUCCESS
+            );
+        } catch(Exception e) {
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_FAILED,
+                    "message", Optional.ofNullable(e.getMessage()).orElse("error of error")
+            );
+        }
+    }
+
+    /**
+     * 은행 및 카드 관리정보 조회
+     * @param param
+     * @return
+     */
+    public Map<String, Object> getInfoDataList(Map<String, Object> param) {
+        String type = MapUtils.getString(param, "type");
+
+        try {
+            if (type.equals(IMPORT_CARD)) {
+                CardData card = CardData.createWithInfo(cardInfoMapper);
+                card.prepareInfoStatementByCondition(param);
+
+                return ImmutableMap.of(
+                        AccConstant.CM_RESULT, AccConstant.CM_SUCCESS,
+                        AccConstant.CM_DATA, card.getCardInfoStatements()
+                        );
+            } else {
+                throw new Exception("Invalid Type Error...");
+            }
+        } catch(Exception e) {
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_FAILED,
+                    "message", e.getMessage()
+            );
+        }
     }
 
     /**
@@ -169,33 +229,42 @@ public class AccountService {
      */
     public List<Map<String, Object>> getRemainAmountByCard() {
         List<Map<String, Object>> cardRemainDataList = new ArrayList<>();
+        Map<String, Object> schParam = new HashMap<>();
 
-        cardInfoMapper.selectCardInfoListByCondition()
-                .stream()
-                .filter(card -> StringUtils.isEquals(AccConstant.YES, card.getSelectedMain()))
-                .forEach(card -> {
-                    Map<String, Object> amtParam = new HashMap<>();
-                    Map<String, Object> remain = new HashMap<>();
+        try {
+            CardData cardData = CardData.createWithInfo(cardInfoMapper);
+            cardData.prepareInfoStatementByCondition(schParam);
 
-                    amtParam.put("ym", DateUtils.getTodayStr("yyyyMM"));
-                    amtParam.put("cardNo", card.getCardNo());
-                    Long usedAmount = accountCardMapper.selectUsedAmountByYm(amtParam);
-                    if(usedAmount == null) {
-                        usedAmount = 0L;
-                    }
+            cardData.getCardInfoStatements()
+                    .stream()
+                    .filter(card -> StringUtils.isEquals(AccConstant.YES, card.getSelectedMain()))
+                    .forEach(card -> {
+                        Map<String, Object> amtParam = new HashMap<>();
+                        Map<String, Object> remain = new HashMap<>();
 
-                    double percentage = ((double)usedAmount / card.getLimitAmt())*100;
+                        amtParam.put("ym", DateUtils.getTodayStr("yyyyMM"));
+                        amtParam.put("cardNo", card.getCardNo());
+                        Long usedAmount = accountCardMapper.selectUsedAmountByYm(amtParam);
+                        if (usedAmount == null) {
+                            usedAmount = 0L;
+                        }
 
-                    remain.put("cardNm", card.getCardName());
-                    remain.put("limitedAmt", card.getLimitAmt());
-                    remain.put("usedAmt", usedAmount);
-                    remain.put("usedPercentage", String.format("%.2f", percentage));
-                    remain.put("remainAmt", card.getLimitAmt() - usedAmount);
+                        double percentage = ((double) usedAmount / card.getLimitAmt()) * 100;
 
-                    cardRemainDataList.add(remain);
-                });
+                        remain.put("cardNm", card.getCardName());
+                        remain.put("limitedAmt", card.getLimitAmt());
+                        remain.put("usedAmt", usedAmount);
+                        remain.put("usedPercentage", String.format("%.2f", percentage));
+                        remain.put("remainAmt", card.getLimitAmt() - usedAmount);
 
-        return cardRemainDataList;
+                        cardRemainDataList.add(remain);
+                    });
+
+            return cardRemainDataList;
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -234,10 +303,6 @@ public class AccountService {
         return ImmutableMap.of(AccConstant.CM_RESULT, AccConstant.CM_SUCCESS, AccConstant.CM_DATA, result);
     }
 
-    /******************************
-     ****** Private Function ******
-     ******************************/
-
     /**
      * tmp 테이블에 저장한 후 fileHash 값으로 임시저장된 리스트 조회
      * @param fileId
@@ -245,6 +310,7 @@ public class AccountService {
      */
     public Map<String, Object> getImportExcelDataList(String type, String fileId) {
         try {
+            // CARD
             if(type.equals(IMPORT_CARD)) {
                 CardData card = CardData.createWithDefault(type, accountCardMapper);
                 card.prepareStatementTmpByFileId(fileId);
@@ -252,6 +318,8 @@ public class AccountService {
                 return ImmutableMap.of(
                         AccConstant.CM_RESULT, AccConstant.CM_SUCCESS,
                         "data", card.getCardStatements());
+
+            // BANK
             } else if(type.equals(IMPORT_BANK)) {
                 BankData bank = BankData.createWithDefault(type, accountBankMapper);
                 bank.prepareStatementTmpByFileId(fileId);

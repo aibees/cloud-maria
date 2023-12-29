@@ -19,9 +19,8 @@
         <result column="selected_main" property="selectedMain" />
     </resultMap>
 
-    <select id="selectCardInfoListByCondition"  resultMap="cardInfoStatementMapping">
+    <select id="selectCardInfoListByCondition" parameterType="java.util.Map" resultMap="cardInfoStatementMapping">
         select aci.card_no
-              ,aci.payway
               ,aci.card_name
               ,aci.bankcd
               ,aci.deadline_date
@@ -38,7 +37,6 @@
 
     <select id="selectCardInfoByCondition" parameterType="java.util.Map" resultMap="cardInfoStatementMapping">
         select aci.card_no
-              ,aci.payway
               ,aci.card_name
               ,aci.bankcd
               ,aci.deadline_date
@@ -62,4 +60,17 @@
         </if>
 
     </select>
+
+    <update id="updateCardInfoStatement" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardInfoStatement">
+        update account_card_info aci
+           set aci.card_name = #{cardName}
+              ,aci.bankcd = #{bankCd}
+              ,aci.expired_ym = #{expiredYm}
+              ,aci.use_yn = #{useYn}
+              ,aci.credit_yn = #{creditYn}
+              ,aci.selected_main = #{selectedMain}
+              ,aci.limit_amt = #{limitAmt}
+              ,aci.company = #{company}
+         where aci.card_no = #{cardNo}
+    </update>
 </mapper>

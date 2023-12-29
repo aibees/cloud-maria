@@ -27,24 +27,50 @@ public class ExcelParserForHYUNDAICARD implements ExcelParser {
         List<CardStatement> statementList = dataListByRow.keySet().stream()
                 .map(k -> {
                     List<String> data = dataListByRow.get(k);
-                    String cardNoStr = data.get(2).substring(data.get(2).length()-5, data.get(2).length()-2);
+                    String ymd = data.get(0)
+                            .replace(AccConstant.SPACE_STR, AccConstant.EMPTY_STR)
+                            .replace("년", "")
+                            .replace("월", "")
+                            .replace("일", "");
+
+                    String cardNoStr = data.get(3).substring(data.get(3).length()-4).replace("*", "%");
 
                     return CardStatement.builder()
                             .fileHash(fileHash)
-                            .ymd(StringUtils.dateStrParseToYMD(data.get(0), "-")) // 날짜
-                            .times(AccConstant.DEFAULT_TIMES.replace(":", "")) // 시간(없음)
+                            .ymd(ymd) // 날짜
+                            .times(trimTimes(data.get(1)))
                             .cardNo(cardNoStr)
-                            .approvNum(Strings.padStart(data.get(9), 8, '0')) // 승인번호
-                            .remark(data.get(3)) // 가맹점명
-                            .amount(Long.parseLong(data.get(6).split("\\.")[0]))
+                            .approvNum(Strings.padStart(data.get(8), 8, '0')) // 승인번호
+                            .remark(data.get(4)) // 가맹점명
+                            .amount(Long.parseLong(data.get(5).replace(",", "")))
                             .apYn("매입")
                             .status("정상")
-                            .usageCd("FF")
+                            .usageCd(getUsageWithType(data.get(4)))
                             .build();
                 })
                 .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
                 .collect(Collectors.toList());
 
         return ImmutableMap.of(AccConstant.CM_RESULT, statementList);
+    }
+
+    private String trimTimes(String src) {
+        String[] strSplit = src.split(":");
+        String hh = (strSplit[0].length() == 1 ? "0" : "") + strSplit[0];
+
+        return hh + strSplit[1] + "00";
+    }
+
+    private String getUsageWithType(String remark) {
+        String usage = "FF";
+
+        if(remark.contains("주유")) {
+            return "0E";
+        }
+
+        if(remark.contains("도로공사") || remark.contains("고속도로")) {
+            return "0D";
+        }
+        return usage;
     }
 }

@@ -7,6 +7,12 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * DataInfo 구현체에서 공통으로 사용되는 Method 생성
+ * 공통적으로 구현되어야 하는 method를 abstract 선언
+ *
+ */
+
 @SuperBuilder
 public abstract class AbstractDataInfo {
 
@@ -22,7 +28,8 @@ public abstract class AbstractDataInfo {
     public enum TRANSFER_TYPE {
         TO_MAIN,
         TO_EXCEL,
-        TO_SMS
+        TO_SMS,
+        TO_INFO
     }
 
     /**
@@ -43,14 +50,18 @@ public abstract class AbstractDataInfo {
             return transferToMain();
         } else if(TRANSFER_TYPE.TO_SMS.equals(this.trx_type)) {
             return transferToSMS();
+        } else if(TRANSFER_TYPE.TO_INFO.equals(this.trx_type)) {
+            return transferToInfo();
         } else {
             return false;
         }
     }
 
-    protected abstract boolean transferToExcelTmp();
+    protected abstract boolean transferToExcelTmp() throws Exception;
 
-    protected abstract boolean transferToMain();
+    protected abstract boolean transferToMain() throws Exception;
 
-    protected abstract boolean transferToSMS();
+    protected abstract boolean transferToSMS() throws Exception;
+
+    protected abstract boolean transferToInfo() throws Exception;
 }

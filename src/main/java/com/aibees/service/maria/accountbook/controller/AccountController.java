@@ -25,6 +25,16 @@ public class AccountController {
         return accountService.getImportExcelDataList(type, fileId);
     }
 
+    @PostMapping("/info/transfer")
+    public Map<String, Object> saveInfoDataList(@RequestBody Map<String, Object> param) {
+        return accountService.transferInfoData(param);
+    }
+
+    @PostMapping("/info/list")
+    public Map<String, Object> getInfoDataList(@RequestBody Map<String, Object> param) {
+        return accountService.getInfoDataList(param);
+    }
+
     @PostMapping("/list/card")
     public List<CardStatement> getCardStatementList(@RequestBody Map<String, Object> param) {
         return accountService.getCardStatementList(param);
@@ -45,16 +55,6 @@ public class AccountController {
         return accountService.getRemainAmountByCard();
     }
 
-    // Bank API
-    @GetMapping("/file/list/bank")
-    public List<BankStatement> getBankExcelImportedList(@RequestParam String fileId) {
-        return null;
-    }
-
-    @PostMapping("/list/bank")
-    public List<BankStatement> getBankStatementList(@RequestBody BankDto param) {
-        return null;
-    }
 
     // common
     @PostMapping("/file")

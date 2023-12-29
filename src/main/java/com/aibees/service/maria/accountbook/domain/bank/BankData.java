@@ -65,6 +65,7 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
     public static BankData createWithInfo(AccountBankInfoMapper infoMapper) {
         return BankData.builder()
+                .trx_type(TRANSFER_TYPE.TO_INFO)
                 .infoMapper(infoMapper)
                 .build();
     }
@@ -72,16 +73,6 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     /**************************
      *** Override  function ***
      **************************/
-
-    @Override
-    public void prepareStatementListByCondition(Map<String, Object> param) throws Exception {
-        this.bankStatements = bankMapper.selectBankStatementList(param);
-    }
-
-    @Override
-    public void prepareStatementTmpByFileId(String fileId) throws Exception {
-        this.bankStatements = bankMapper.getImportedBankStatementTmp(fileId);
-    }
 
     @Override
     public void excelParse(MultipartFile file) throws Exception {
@@ -114,7 +105,22 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     }
 
     @Override
-    protected boolean transferToExcelTmp() {
+    public void prepareStatementListByCondition(Map<String, Object> param) throws Exception {
+        this.bankStatements = bankMapper.selectBankStatementList(param);
+    }
+
+    @Override
+    public void prepareStatementTmpByFileId(String fileId) throws Exception {
+        this.bankStatements = bankMapper.getImportedBankStatementTmp(fileId);
+    }
+
+    @Override
+    public void prepareInfoStatementByCondition(Map<String, Object> param) throws Exception {
+
+    }
+
+    @Override
+    protected boolean transferToExcelTmp() throws Exception {
         AtomicInteger resultCnt = new AtomicInteger(0);
         int listCnt = bankStatements.size();
         boolean result = true;
@@ -131,7 +137,7 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     }
 
     @Override
-    protected boolean transferToMain() {
+    protected boolean transferToMain() throws Exception {
         AtomicInteger resultCnt = new AtomicInteger(0);
         int listCnt = bankStatements.size();
         boolean result = true;
@@ -143,12 +149,21 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
         if(listCnt > resultCnt.get()) { // duplicate key 경우 2를 반환하기에 해당 경우의 수도 염두두
             result = false;
+            throw new Exception("저장 실패");
         }
+
+        bankMapper.deleteBankStatementTmp(this.fileHashName);
+        bankMapper.deleteTmpFileHashName(ImmutableMap.of("fileId", this.fileHashName, "fileType", IMPORT_BANK));
         return result;
     }
 
     @Override
-    protected boolean transferToSMS() {
+    protected boolean transferToSMS() throws Exception {
+        return false;
+    }
+
+    @Override
+    protected boolean transferToInfo() throws Exception {
         return false;
     }
 
@@ -178,18 +193,27 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     public void setBankStatementsWithMap(List<Map<String, Object>> data) {
         this.bankStatements = data.stream().map(each ->
                 BankStatement.builder()
-                             .ymd(MapUtils.getString(each, "ymd"))
-                             .times(MapUtils.getString(each, "times"))
-                             .bankCd(MapUtils.getString(each, "bankCd"))
+                             .ymd(MapUtils.getString(each, "ymd").replace("-", "").replace(".", ""))
+                             .times(MapUtils.getString(each, "times").replace(":", ""))
+                             .bankId(MapUtils.getString(each, "bankId"))
                              .bankNm(MapUtils.getString(each, "bankNm"))
                              .usageCd(MapUtils.getString(each, "usageCd"))
                              .usageNm(MapUtils.getString(each, "usageNm"))
                              .usageColor(MapUtils.getString(each, "usageColor"))
-                             .entry(MapUtils.getString(each, "entry"))
+                             .entryCd(MapUtils.getString(each, "entryCd"))
+                             .entryNm(MapUtils.getString(each, "entryNm"))
                              .remark(MapUtils.getString(each, "remark"))
                              .amount(MapUtils.getLong(each, "amount"))
                              .build())
                 .collect(Collectors.toList());
+    }
+
+    public void setBankInfoStatementsWithMap(List<Map<String, Object>> data) {
+
+    }
+
+    public void setFileHashName(String fileHash) {
+        this.fileHashName = fileHash;
     }
 
     public String getFileHashName() {

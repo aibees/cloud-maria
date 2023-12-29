@@ -22,7 +22,7 @@
         <result property="remark" column="remark" />
     </resultMap>
 
-    <select id="selectCardStatementList" parameterType="com.aibees.service.maria.accountbook.entity.dto.CardDto" resultMap="cardStatementMapping">
+    <select id="selectCardStatementList" parameterType="java.util.Map" resultMap="cardStatementMapping">
         select concat(substr(acs.ymd, 1, 4), '-', substr(acs.ymd, 5, 2),'-', substr(acs.ymd, 7, 2))       as ymd
               ,concat(substr(acs.times, 1, 2), ':', substr(acs.times, 3, 2),':', substr(acs.times, 5, 2)) as times
               ,acs.approv_num                                                                             as approv_num
@@ -45,9 +45,9 @@
         <if test="ymdFrom != null or ymdTo != ''">
             and acs.ymd between #{ymdFrom} and #{ymdTo}
         </if>
-<!--        <if test="cardNo != null or cardNo != ''">-->
-<!--            and acs.card_no = #{cardNo}-->
-<!--        </if>-->
+        <if test="cardNo != null or cardNo != ''">
+            and acs.card_no = #{cardNo}
+        </if>
         <if test="remark != null and remark != ''">
             and acs.remark like concat('%',  #{remark}, '%')
         </if>
@@ -71,6 +71,7 @@
               ,acse.card_nm
               ,acse.usage_cd
               ,acse.usage_nm
+              ,(select asd.attribute03 from account_setting_detail asd where asd.header_id = 4 and asd.code = acse.usage_cd) as usage_color
               ,acse.amount
               ,acse.remark
           from account_card_statement_exceltmp acse
@@ -227,4 +228,15 @@
         #{remark}
         )
     </insert>
+
+    <delete id="deleteCardStatementSms" parameterType="java.util.List">
+        delete from account_card_statement_sms
+         <where>
+             (`ymd`, `times`, `card_no`) in (
+             <foreach collection="list" item="state" separator=",">
+                (#{state.ymd}, #{state.times}, #{state.cardNo})
+             </foreach>
+             )
+         </where>
+    </delete>
 </mapper>

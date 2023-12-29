@@ -33,6 +33,7 @@
               ,asd.attribute05
           from account_setting_detail asd
          where asd.header_id = #{headerId}
+           and asd.enabled_flag = 'Y'
     </select>
 
     <select id="selectSettingDetailListWithHeader" parameterType="java.util.Map" resultType="java.util.Map">
@@ -50,6 +51,7 @@
            and ash.depart   = #{depart}
            and ash.category = #{category}
            and ash.code     = #{title}
+           and asd.enabled_flag = 'Y'
          order by asd.sort
     </select>
 

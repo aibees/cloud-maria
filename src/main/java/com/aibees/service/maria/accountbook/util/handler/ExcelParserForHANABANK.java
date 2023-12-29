@@ -36,7 +36,7 @@ public class ExcelParserForHANABANK implements ExcelParser {
                             .ymd(dateData[0].replace("-", ""))
                             .times(dateData[1].replace(":", ""))
                             .bankAcct(bankAcct)
-                            .entry(entry)
+                            .entryCd(entry)
                             .usageCd(getUsageWithType(data.get(1), data.get(2), entry))
                             .amount(Long.parseLong( (entry.equals("1"))? data.get(3) : data.get(4)) )
                             .remark(data.get(2))

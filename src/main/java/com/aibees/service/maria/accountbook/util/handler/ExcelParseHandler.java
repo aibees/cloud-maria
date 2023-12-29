@@ -34,6 +34,10 @@ public class ExcelParseHandler {
             parser = new ExcelParserForHANABANK();
         }
 
+        if(AccConstant.BANK_SHINHAN.equals(type)) {
+            parser = new ExcelParserForSHINHANBANK();
+        }
+
         return parser.parse(workbook, fileHash);
     }
 
