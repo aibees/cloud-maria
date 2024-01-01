@@ -25,6 +25,7 @@ public interface AccConstant {
     public static final String CM_FAILED = "FAILED";
     public static final String CM_RESULT = "RESULT";
     public static final String CM_DATA = "DATA";
+    public static final String CM_MESSAGE = "message";
 
     public static final String TRX_EXCEL = "TO_EXCEL";
     public static final String TRX_MAIN = "TO_MAIN";

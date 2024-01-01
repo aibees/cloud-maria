@@ -1,8 +1,5 @@
 package com.aibees.service.maria.accountbook.controller;
 
-import com.aibees.service.maria.accountbook.entity.dto.BankDto;
-import com.aibees.service.maria.accountbook.entity.dto.CardDto;
-import com.aibees.service.maria.accountbook.entity.vo.BankStatement;
 import com.aibees.service.maria.accountbook.entity.vo.CardStatement;
 import com.aibees.service.maria.accountbook.service.AccountService;
 import com.aibees.service.maria.accountbook.util.AccConstant;

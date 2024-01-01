@@ -11,4 +11,5 @@ public interface DataInfo {
     void prepareStatementListByCondition(Map<String, Object> param) throws Exception;
     void prepareStatementTmpByFileId(String fileId) throws Exception;
     void prepareInfoStatementByCondition(Map<String, Object> param) throws Exception;
+    void prepareCloseDataByCondition(Map<String, Object> param) throws Exception;
 }

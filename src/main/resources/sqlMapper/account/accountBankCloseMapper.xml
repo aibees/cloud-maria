@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountBankCloseMapper">
+
+    <select id="getBankCloseByBankidAndYm" parameterType="java.util.Map" resultType="com.aibees.service.maria.accountbook.entity.vo.BankCloseStatement">
+        select abc.bank_id as bankId
+              ,abc.ym
+              ,abc.last_amount as lastAmount
+              ,abc.profit_amount as profitAmount
+              ,abc.loss_amount as lossAmount
+              ,abc.income_amount as incomeAmount
+              ,abc.close_yn as closeYn
+          from account_bank_closing abc
+         where abc.bank_id = #{bankId}
+           and abc.next_ym = #{ym}
+           and abc.close_yn = 'Y'
+    </select>
+
+    <resultMap id="getBankAmountByUsageAndYmMapping" type="java.util.Map">
+        <result column="ym"       property="ym" />
+        <result column="bank_id"  property="bankId" />
+        <result column="bank_nm"  property="bankNm" />
+        <result column="entry_cd" property="entryCd" />
+        <result column="entry_nm" property="entryNm" />
+        <result column="usage_cd" property="usageCd" />
+        <result column="usage_nm" property="usageNm" />
+        <result column="amount"   property="amount" />
+    </resultMap>
+
+    <select id="getBankAmountByUsageAndYm" parameterType="java.util.Map" resultMap="getBankAmountByUsageAndYmMapping">
+        select substr(abs.ymd, 1, 6) as ym
+             , abs.bank_id
+             , (select abi.bank_nm from account_bank_info abi where abi.bank_id = abs.bank_id) as bank_nm
+             , abs.entry as entry_cd
+             , (if(abs.entry = 0, "수입", "지출")) as entry_nm
+             , abs.usage_cd
+             , (select asd.name
+                  from account_setting_detail asd
+                 where asd.header_id = 4
+                   and asd.code = abs.usage_cd) as usage_nm
+             , sum(abs.amount) as amount
+          from account_bank_statement abs
+         where 1=1
+           and abs.bank_id = #{bankId}
+           and substr(abs.ymd, 1, 6) = #{ym}
+         group by substr(abs.ymd, 1, 6)
+                , abs.entry
+                , abs.bank_id
+                , abs.usage_cd
+    </select>
+
+</mapper>

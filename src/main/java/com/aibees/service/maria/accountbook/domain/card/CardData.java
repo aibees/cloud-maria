@@ -79,6 +79,8 @@ public class CardData extends AbstractDataInfo implements DataInfo {
                 .build();
     }
 
+    public static CardData createWithClose() { return null; }
+
     /**************************
      *** Override  function ***
      **************************/
@@ -141,6 +143,11 @@ public class CardData extends AbstractDataInfo implements DataInfo {
                                                 infoData.setLimitAmt(Optional.ofNullable(infoData.getLimitAmt()).orElse(-1L));
                                             })
                                             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void prepareCloseDataByCondition(Map<String, Object> param) throws Exception {
+
     }
 
     // abstractDataInfo

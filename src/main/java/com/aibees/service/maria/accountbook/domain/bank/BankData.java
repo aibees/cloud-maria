@@ -2,8 +2,10 @@ package com.aibees.service.maria.accountbook.domain.bank;
 
 import com.aibees.service.maria.accountbook.domain.AbstractDataInfo;
 import com.aibees.service.maria.accountbook.domain.DataInfo;
+import com.aibees.service.maria.accountbook.entity.mapper.AccountBankCloseMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankInfoMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankMapper;
+import com.aibees.service.maria.accountbook.entity.vo.BankInfoStatement;
 import com.aibees.service.maria.accountbook.entity.vo.BankStatement;
 import com.aibees.service.maria.accountbook.util.AccConstant;
 import com.aibees.service.maria.accountbook.util.handler.ExcelParseHandler;
@@ -28,15 +30,23 @@ import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_CARD;
 @SuperBuilder
 public class BankData extends AbstractDataInfo implements DataInfo {
 
-    // bank data mapper
+    // bank data
     private AccountBankMapper bankMapper;
+
+    private List<BankStatement> bankStatements;
+    private BankStatement bankStatement;
 
     // bank infodata mapper
     private AccountBankInfoMapper infoMapper;
 
+    private List<BankInfoStatement> bankInfoStatements;
+    private BankInfoStatement bankInfoStatement;
+
+    //bank closeData mapper
+    private AccountBankCloseMapper closeMapper;
+    private List<Map<String, Object>> closeDataList;
+
     // bank statement List container
-    private List<BankStatement> bankStatements;
-    private BankStatement bankStatement;
 
     private String fileHashName;
 
@@ -66,6 +76,13 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     public static BankData createWithInfo(AccountBankInfoMapper infoMapper) {
         return BankData.builder()
                 .trx_type(TRANSFER_TYPE.TO_INFO)
+                .infoMapper(infoMapper)
+                .build();
+    }
+
+    public static BankData createWithClose(AccountBankCloseMapper closeMapper, AccountBankInfoMapper infoMapper) {
+        return BankData.builder()
+                .closeMapper(closeMapper)
                 .infoMapper(infoMapper)
                 .build();
     }
@@ -116,7 +133,17 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
     @Override
     public void prepareInfoStatementByCondition(Map<String, Object> param) throws Exception {
+        this.bankInfoStatements = infoMapper.selectBankInfoListByCondition(param);
+    }
 
+    @Override
+    public void prepareCloseDataByCondition(Map<String, Object> param) throws Exception {
+        String selectType = MapUtils.getString(param, "type");
+        Map<String, Object> queryParam = (Map<String, Object>) param.get("param");
+
+        if("closeDataList".equals(selectType)) {
+            this.closeDataList = closeMapper.getBankAmountByUsageAndYm(queryParam);
+        }
     }
 
     @Override
@@ -178,6 +205,10 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     /**************************
      **** get/set function ****
      **************************/
+    public AccountBankCloseMapper getCloseMapper() {
+        return this.closeMapper;
+    }
+
     public List<BankStatement> getBankStatements() {
         return this.bankStatements;
     }
@@ -208,8 +239,16 @@ public class BankData extends AbstractDataInfo implements DataInfo {
                 .collect(Collectors.toList());
     }
 
+    public List<BankInfoStatement> getBankInfoStatements() {
+        return this.bankInfoStatements;
+    }
+
     public void setBankInfoStatementsWithMap(List<Map<String, Object>> data) {
 
+    }
+
+    public List<Map<String, Object>> getCloseDataList() {
+        return this.closeDataList;
     }
 
     public void setFileHashName(String fileHash) {
