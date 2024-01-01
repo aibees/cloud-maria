@@ -10,4 +10,6 @@ import java.util.Map;
 public interface AccountBankCloseMapper {
     List<Map<String, Object>> getBankAmountByUsageAndYm(Map<String, Object> param);
     BankCloseStatement getBankCloseByBankidAndYm(Map<String, Object> param);
+
+    List<Map<String, Object>> getBankCloseDetailForCheck(Map<String, Object> param);
 }

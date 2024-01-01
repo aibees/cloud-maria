@@ -51,4 +51,26 @@
                 , abs.usage_cd
     </select>
 
+    <resultMap id="getBankCloseDetailMapping" type="java.util.Map">
+        <result column="ymd" property="ymd" />
+        <result column="times" property="times" />
+        <result column="bank_id" property="bankId" />
+        <result column="amount" property="amount" />
+        <result column="remark" property="remark" />
+        <result column="confirm_status" property="confirmStatus" />
+    </resultMap>
+
+    <select id="getBankCloseDetailForCheck" parameterType="java.util.Map" resultMap="getBankCloseDetailMapping">
+        select abs.ymd
+              ,abs.times
+              ,abs.bank_id
+              ,abs.amount
+              ,abs.remark
+              ,abs.confirm_status
+          from account_bank_statement abs
+         where abs.bank_id = #{bankId}
+           and abs.entry = #{entryCd}
+           and abs.usage_cd = #{usageCd}
+           and substr(abs.ymd, 1, 6) = #{ym}
+    </select>
 </mapper>

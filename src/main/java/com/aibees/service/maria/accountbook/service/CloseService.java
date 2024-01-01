@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_CARD;
+
 @Service
 @AllArgsConstructor
 public class CloseService {
@@ -28,7 +30,7 @@ public class CloseService {
         List<Map<String, Object>> result = new ArrayList<>();
         String queryType = "closeDataList";
         try {
-            if(type.equals(AccConstant.IMPORT_CARD)) {
+            if(type.equals(IMPORT_CARD)) {
                 CardData card = null;
             } else {
                 BankData bank = BankData.createWithClose(bankCloseMapper, bankInfoMapper);
@@ -38,10 +40,10 @@ public class CloseService {
                 // 은행 별로 마감조회데이터 가져오기
                 bankList.forEach(b -> {
                     System.out.println(b.toString());
-                    Map<String, Object> queryParam = ImmutableMap.of("bankId", b.getBankId(), "ym", ym);
-                    Map<String, Object> param = ImmutableMap.of(
+                    Map<String, Object> param = ImmutableMap.of("bankId", b.getBankId(), "ym", ym);
+                    Map<String, Object> queryParam = ImmutableMap.of(
                             "type", queryType,
-                            "param", queryParam
+                            "param", param
                     );
                     try {
                         BankCloseStatement closeState = bank.getCloseMapper().getBankCloseByBankidAndYm(queryParam);
@@ -53,7 +55,7 @@ public class CloseService {
                         bankData.put("limitAmt", b.getLimitAmt());
                         bankData.put("lastAmt", closeState.getLastAmount());
 
-                        bank.prepareCloseDataByCondition(param);
+                        bank.prepareCloseDataByCondition(queryParam);
                         List<Map<String, Object>> lineData = bank.getCloseDataList();
 
                         if(Objects.nonNull(lineData) && lineData.size() > 0) {
@@ -82,7 +84,44 @@ public class CloseService {
         }
     }
 
+    public Map<String, Object> getDetailDataListForCheck(Map<String, Object> param) {
+        String type = MapUtils.getString(param, "type");
+        String queryType = "closeDetailList";
+        try {
+            List<Map<String, Object>> result = new ArrayList<>();
+            if (type.equals(IMPORT_CARD)) {
 
+            } else {
+                BankData bank = BankData.createWithClose(bankCloseMapper, bankInfoMapper);
+                Map<String, Object> queryParam = ImmutableMap.of(
+                        "type", queryType,
+                        "param", param
+                );
+                bank.prepareCloseDataByCondition(queryParam);
+                result = bank.getCloseDataList();
+            }
+
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_SUCCESS,
+                    AccConstant.CM_DATA, result
+            );
+        } catch (Exception e) {
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_FAILED,
+                    AccConstant.CM_MESSAGE, e.getMessage()
+            );
+        }
+    }
+
+    /*************************
+     **** private  method ****
+     *************************/
+
+    /**
+     *
+     * @param bankData
+     * @param lineData
+     */
     private void summaryData(Map<String, Object> bankData, List<Map<String, Object>> lineData) {
         AtomicLong profitAmt = new AtomicLong(0L);
         List<Map<String, Object>> profitData = new ArrayList<>();

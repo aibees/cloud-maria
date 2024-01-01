@@ -143,6 +143,8 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
         if("closeDataList".equals(selectType)) {
             this.closeDataList = closeMapper.getBankAmountByUsageAndYm(queryParam);
+        } else if("closeDetailList".equals(selectType)) {
+            this.closeDataList = closeMapper.getBankCloseDetailForCheck(queryParam);
         }
     }
 
