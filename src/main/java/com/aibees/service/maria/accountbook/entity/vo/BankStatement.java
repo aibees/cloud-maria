@@ -22,4 +22,6 @@ public class BankStatement {
     private String usageColor;
     private Long amount;
     private String remark;
+    private String confirmStatus;
+    private String wasteCheck;
 }

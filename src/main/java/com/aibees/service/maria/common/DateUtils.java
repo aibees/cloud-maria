@@ -1,10 +1,12 @@
 package com.aibees.service.maria.common;
 
+import com.aibees.service.maria.accountbook.util.AccConstant;
 import com.google.common.base.Strings;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class DateUtils {
@@ -29,6 +31,16 @@ public class DateUtils {
         SimpleDateFormat format = new SimpleDateFormat(formatStr);
         Date today = new Date();
         return format.format(today);
+    }
+
+    public static String addMonthDate(String src, String form, int add) {
+        LocalDate curDate = LocalDate.parse(src, DateTimeFormatter.ofPattern(form));
+        LocalDate nextDate = curDate.plusMonths(add);
+
+        String y = Integer.toString(nextDate.getYear());
+        String m = Strings.padStart(Integer.toString(nextDate.getMonth().getValue()), 2, '0');
+
+        return String.join(AccConstant.EMPTY_STR, y, m);
     }
 
     public static String getTodayStr() {

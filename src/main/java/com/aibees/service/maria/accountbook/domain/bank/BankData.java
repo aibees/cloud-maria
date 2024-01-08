@@ -5,6 +5,7 @@ import com.aibees.service.maria.accountbook.domain.DataInfo;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankCloseMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankInfoMapper;
 import com.aibees.service.maria.accountbook.entity.mapper.AccountBankMapper;
+import com.aibees.service.maria.accountbook.entity.vo.BankCloseStatement;
 import com.aibees.service.maria.accountbook.entity.vo.BankInfoStatement;
 import com.aibees.service.maria.accountbook.entity.vo.BankStatement;
 import com.aibees.service.maria.accountbook.util.AccConstant;
@@ -44,6 +45,8 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
     //bank closeData mapper
     private AccountBankCloseMapper closeMapper;
+    private List<BankCloseStatement> bankCloseStatements;
+    private BankCloseStatement bankCloseStatement;
     private List<Map<String, Object>> closeDataList;
 
     // bank statement List container
@@ -207,6 +210,42 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     /**************************
      **** get/set function ****
      **************************/
+
+    //statement Setup
+    public void setBankStatementsWithMap(List<Map<String, Object>> data) {
+        this.bankStatements = data.stream().map(each ->
+                BankStatement.builder()
+                        .ymd(MapUtils.getString(each, "ymd").replace("-", "").replace(".", ""))
+                        .times(MapUtils.getString(each, "times").replace(":", ""))
+                        .bankId(MapUtils.getString(each, "bankId"))
+                        .bankNm(MapUtils.getString(each, "bankNm"))
+                        .usageCd(MapUtils.getString(each, "usageCd"))
+                        .usageNm(MapUtils.getString(each, "usageNm"))
+                        .usageColor(MapUtils.getString(each, "usageColor"))
+                        .entryCd(MapUtils.getString(each, "entryCd"))
+                        .entryNm(MapUtils.getString(each, "entryNm"))
+                        .remark(MapUtils.getString(each, "remark"))
+                        .confirmStatus(MapUtils.getString(each, "confirmStatus"))
+                        .wasteCheck(MapUtils.getString(each, "wasteCheck"))
+                        .amount(MapUtils.getLong(each, "amount"))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public void setBankCloseStatementWithMap(Map<String, Object> data) {
+        this.bankCloseStatement = BankCloseStatement
+                .builder()
+                .bankId(MapUtils.getString(data, "bankId"))
+                .ym(MapUtils.getString(data, "ym"))
+                .lastAmount(Long.parseLong(MapUtils.getString(data, "lastAmount").replace(",", "")))
+                .lossAmount(Long.parseLong(MapUtils.getString(data, "lossAmount").replace(",", "")))
+                .profitAmount(Long.parseLong(MapUtils.getString(data, "profitAmount").replace(",", "")))
+                .incomeAmount(Long.parseLong(MapUtils.getString(data, "incomeAmount").replace(",", "")))
+                .closeYn(MapUtils.getString(data, "closeYn"))
+                .nextYm(MapUtils.getString(data, "nextYm"))
+                .build();
+    }
+
     public AccountBankCloseMapper getCloseMapper() {
         return this.closeMapper;
     }
@@ -223,23 +262,7 @@ public class BankData extends AbstractDataInfo implements DataInfo {
         this.bankStatements = statements;
     }
 
-    public void setBankStatementsWithMap(List<Map<String, Object>> data) {
-        this.bankStatements = data.stream().map(each ->
-                BankStatement.builder()
-                             .ymd(MapUtils.getString(each, "ymd").replace("-", "").replace(".", ""))
-                             .times(MapUtils.getString(each, "times").replace(":", ""))
-                             .bankId(MapUtils.getString(each, "bankId"))
-                             .bankNm(MapUtils.getString(each, "bankNm"))
-                             .usageCd(MapUtils.getString(each, "usageCd"))
-                             .usageNm(MapUtils.getString(each, "usageNm"))
-                             .usageColor(MapUtils.getString(each, "usageColor"))
-                             .entryCd(MapUtils.getString(each, "entryCd"))
-                             .entryNm(MapUtils.getString(each, "entryNm"))
-                             .remark(MapUtils.getString(each, "remark"))
-                             .amount(MapUtils.getLong(each, "amount"))
-                             .build())
-                .collect(Collectors.toList());
-    }
+
 
     public List<BankInfoStatement> getBankInfoStatements() {
         return this.bankInfoStatements;
@@ -251,6 +274,10 @@ public class BankData extends AbstractDataInfo implements DataInfo {
 
     public List<Map<String, Object>> getCloseDataList() {
         return this.closeDataList;
+    }
+
+    public BankCloseStatement getBankCloseStatement() {
+        return this.bankCloseStatement;
     }
 
     public void setFileHashName(String fileHash) {

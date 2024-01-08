@@ -19,14 +19,16 @@
     </select>
 
     <resultMap id="getBankAmountByUsageAndYmMapping" type="java.util.Map">
-        <result column="ym"       property="ym" />
-        <result column="bank_id"  property="bankId" />
-        <result column="bank_nm"  property="bankNm" />
-        <result column="entry_cd" property="entryCd" />
-        <result column="entry_nm" property="entryNm" />
-        <result column="usage_cd" property="usageCd" />
-        <result column="usage_nm" property="usageNm" />
-        <result column="amount"   property="amount" />
+        <result column="ym"         property="ym" />
+        <result column="bank_id"    property="bankId" />
+        <result column="bank_nm"    property="bankNm" />
+        <result column="entry_cd"   property="entryCd" />
+        <result column="entry_nm"   property="entryNm" />
+        <result column="usage_cd"   property="usageCd" />
+        <result column="usage_nm"   property="usageNm" />
+        <result column="amount"     property="amount" />
+        <result column="cnt"      property="count" />
+        <result column="confirm_cnt" property="confirmCnt" />
     </resultMap>
 
     <select id="getBankAmountByUsageAndYm" parameterType="java.util.Map" resultMap="getBankAmountByUsageAndYmMapping">
@@ -41,6 +43,8 @@
                  where asd.header_id = 4
                    and asd.code = abs.usage_cd) as usage_nm
              , sum(abs.amount) as amount
+             , count(*) as cnt
+             , sum(if(abs.confirm_status = 'CONFIRM', 1, 0)) as confirm_cnt
           from account_bank_statement abs
          where 1=1
            and abs.bank_id = #{bankId}
@@ -55,22 +59,60 @@
         <result column="ymd" property="ymd" />
         <result column="times" property="times" />
         <result column="bank_id" property="bankId" />
+        <result column="entry_cd" property="entryCd" />
         <result column="amount" property="amount" />
         <result column="remark" property="remark" />
+        <result column="usage_nm" property="usageNm" />
         <result column="confirm_status" property="confirmStatus" />
+        <result column="waste_check" property="wasteCheck" />
     </resultMap>
 
     <select id="getBankCloseDetailForCheck" parameterType="java.util.Map" resultMap="getBankCloseDetailMapping">
-        select abs.ymd
-              ,abs.times
+        select concat(substring(abs.ymd, 1, 4), '.', substring(abs.ymd, 5, 2), '.', substring(abs.ymd, 7, 2)) as ymd
+              ,concat(substring(abs.times, 1, 2), ':', substring(abs.times, 3, 2), ':', substring(abs.times, 5, 2)) as times
               ,abs.bank_id
+              ,abs.entry as entry_cd
               ,abs.amount
               ,abs.remark
+              ,(select x.name from account_setting_detail x where x.header_id = 4 and x.code =abs.usage_cd) as usage_nm
               ,abs.confirm_status
+              ,abs.waste_check
           from account_bank_statement abs
          where abs.bank_id = #{bankId}
            and abs.entry = #{entryCd}
            and abs.usage_cd = #{usageCd}
            and substr(abs.ymd, 1, 6) = #{ym}
     </select>
+
+    <update id="updateBankStatementStatus" parameterType="com.aibees.service.maria.accountbook.entity.vo.BankStatement">
+        update account_bank_statement abs
+           set abs.confirm_status = #{confirmStatus}
+              ,abs.waste_check = #{wasteCheck}
+         where abs.bank_id = #{bankId}
+           and abs.ymd = #{ymd}
+           and abs.times = #{times}
+           and abs.entry = #{entryCd}
+    </update>
+
+    <insert id="insertBankCloseData" parameterType="com.aibees.service.maria.accountbook.entity.vo.BankCloseStatement">
+        insert into account_bank_closing (
+            `bank_id`,
+            `ym`,
+            `last_amount`,
+            `profit_amount`,
+            `loss_amount`,
+            `income_amount`,
+            `close_yn`,
+            `next_ym`
+        ) values (
+            #{bankId},
+            #{ym},
+            #{lastAmount},
+            #{profitAmount},
+            #{lossAmount},
+            #{incomeAmount},
+            'Y',
+            #{nextYm}
+        )
+    </insert>
 </mapper>

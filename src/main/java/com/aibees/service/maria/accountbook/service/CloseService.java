@@ -8,14 +8,21 @@ import com.aibees.service.maria.accountbook.entity.mapper.AccountCardInfoMapper;
 import com.aibees.service.maria.accountbook.entity.vo.BankCloseStatement;
 import com.aibees.service.maria.accountbook.entity.vo.BankInfoStatement;
 import com.aibees.service.maria.accountbook.util.AccConstant;
+import com.aibees.service.maria.common.DateUtils;
 import com.aibees.service.maria.common.MapUtils;
+import com.aibees.service.maria.common.vo.ResponseData;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
+import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_BANK;
 import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_CARD;
 
 @Service
@@ -46,15 +53,19 @@ public class CloseService {
                             "param", param
                     );
                     try {
-                        BankCloseStatement closeState = bank.getCloseMapper().getBankCloseByBankidAndYm(queryParam);
+                        // 전월 마감라인 가져오기
+                        BankCloseStatement closeState = bank.getCloseMapper().getBankCloseByBankidAndYm(param);
                         if(closeState == null)
                             closeState = new BankCloseStatement();
+
                         Map<String, Object> bankData = new HashMap<>();
                         bankData.put("bankId", b.getBankId());
                         bankData.put("bankNm", b.getBankNm());
                         bankData.put("limitAmt", b.getLimitAmt());
                         bankData.put("lastAmt", closeState.getLastAmount());
+                        bankData.put("ym", ym);
 
+                        // 은행 별 월 마감데이터 조회하기
                         bank.prepareCloseDataByCondition(queryParam);
                         List<Map<String, Object>> lineData = bank.getCloseDataList();
 
@@ -81,6 +92,33 @@ public class CloseService {
                     AccConstant.CM_RESULT, AccConstant.CM_FAILED,
                     AccConstant.CM_MESSAGE, e.getMessage()
             );
+        }
+    }
+
+    public ResponseEntity<ResponseData> confirmCloseData(Map<String, Object> param) {
+        String type = MapUtils.getString(param, "type");
+        try {
+            if (type.equals(AccConstant.IMPORT_BANK)) {
+                Map<String, Object> paramData = (Map<String, Object>)param.get("data");
+                String curYm = MapUtils.getString(paramData, "ym");
+                String nextYm = DateUtils.addMonthDate(curYm+"01", "yyyyMMdd", 1);
+                paramData.put("nextYm", nextYm);
+                BankData bank = BankData.createWithClose(bankCloseMapper, bankInfoMapper);
+                bank.setBankCloseStatementWithMap(paramData);
+
+                if(bank.getCloseMapper().insertBankCloseData(bank.getBankCloseStatement()) < 1) {
+                    throw new Exception("Abnormal INSERT - confirmCloseData");
+                }
+            }
+            return ResponseEntity
+                    .ok(ResponseData
+                            .builder()
+                            .status(HttpStatus.OK)
+                            .build());
+        } catch(Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseData.builder().message(e.getMessage()).build());
         }
     }
 
@@ -113,6 +151,42 @@ public class CloseService {
         }
     }
 
+    public Map<String, Object> saveCloseDetail(Map<String, Object> param) {
+        String type = MapUtils.getString(param, "type");
+        String data = AccConstant.EMPTY_STR;
+        List<Map<String, Object>> paramData = (List<Map<String, Object>>)param.get("data");
+        try {
+            if (type.equals(IMPORT_BANK)) {
+                BankData bank = BankData.createWithClose(bankCloseMapper, bankInfoMapper);
+                bank.setBankStatementsWithMap(paramData);
+                
+                int dataSize = bank.getBankStatements().size();
+                AtomicInteger uptSize = new AtomicInteger(0);
+                bank.getBankStatements().forEach(state -> {
+                    uptSize.addAndGet(bank.getCloseMapper().updateBankStatementStatus(state));
+                });
+                
+                if(dataSize > uptSize.get()) {
+                    throw new Exception("업데이트 오류 발생");
+                } else {
+                    data = "성공";
+                }
+            } else {
+
+            }
+
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_SUCCESS,
+                    AccConstant.CM_DATA, data
+            );
+        } catch(Exception e) {
+            return ImmutableMap.of(
+                    AccConstant.CM_RESULT, AccConstant.CM_FAILED,
+                    AccConstant.CM_MESSAGE, e.getMessage()
+            );
+        }
+    }
+
     /*************************
      **** private  method ****
      *************************/
@@ -128,7 +202,18 @@ public class CloseService {
         AtomicLong lossAmt = new AtomicLong(0L);
         List<Map<String, Object>> lossData = new ArrayList<>();
 
-        lineData.forEach(line -> {
+        lineData = lineData.stream().peek(line -> {
+            int dataCnt = MapUtils.getInteger(line, "count");
+            int confirmCnt = MapUtils.getInteger(line, "confirmCnt");
+
+            System.out.println("dataCnt : " + dataCnt + " / confirmCnt : " + confirmCnt);
+
+            if(dataCnt == confirmCnt) {
+                line.put("confirmMsg", "검토완료");
+            } else {
+                line.put("confirmMsg", "검토하기");
+            }
+
             String entry_cd = MapUtils.getString(line, "entryCd");
             if(entry_cd.equals("0")) {
                 // 수입
@@ -139,7 +224,7 @@ public class CloseService {
                 lossAmt.addAndGet(MapUtils.getLong(line, "amount"));
                 lossData.add(line);
             }
-        });
+        }).collect(Collectors.toList());
 
         bankData.put("profitAcc", profitAmt);
         bankData.put("profitData", profitData);

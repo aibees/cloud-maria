@@ -16,4 +16,5 @@ public class BankCloseStatement {
     private long lossAmount;
     private long incomeAmount;
     private String closeYn;
+    private String nextYm;
 }
