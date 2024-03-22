@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountBankMapper">
+
+    <resultMap id="bankStatementMapping" type="com.aibees.service.maria.accountbook.entity.vo.BankStatement">
+        <result property="ymd" column="ymd" />
+        <result property="times" column="times" />
+        <result property="bankId" column="bank_id" />
+        <result property="bankNm" column="bank_nm" />
+        <result property="entryCd" column="entry_cd" />
+        <result property="entryNm" column="entry_nm" />
+        <result property="usageCd" column="usage_cd" />
+        <result property="usageNm" column="usage_nm" />
+        <result property="usageColor" column="usage_color" />
+        <result property="amount" column="amount" />
+        <result property="remark" column="remark" />
+    </resultMap>
+
+    <!--  엑셀 업로드 대상 조회  -->
+    <select id="getImportedBankStatementTmp" parameterType="java.lang.String" resultMap="bankStatementMapping">
+        select concat(substring(abse.ymd, 1, 4), '.', substring(abse.ymd, 5, 2), '.', substring(abse.ymd, 7, 2)) as ymd
+        ,concat(substring(abse.times, 1, 2), ':', substring(abse.times, 3, 2), ':', substring(abse.times, 5, 2)) as times
+        ,abse.bank_id
+        ,abse.bank_nm
+        ,abse.entry as entry_cd
+        ,(select asd.name from account_setting_detail asd where asd.header_id = 2 and asd.code = abse.entry) as entry_nm
+        ,abse.usage_cd
+        ,abse.usage_nm
+        ,(select asd.attribute03 from account_setting_detail asd where asd.header_id = 4 and asd.code = abse.usage_cd) as usage_color
+        ,abse.amount
+        ,abse.remark
+        from account_bank_statement_exceltmp abse
+        where abse.excelfile_id = #{fileId}
+        order by abse.ymd, abse.times
+    </select>
+
+    <insert id="insertBankStatementTmp" parameterType="com.aibees.service.maria.accountbook.entity.vo.BankStatement">
+        insert account_bank_statement_exceltmp (
+         `excelfile_id`
+        ,`ymd`
+        ,`times`
+        ,`bank_id`
+        ,`bank_nm`
+        ,`entry`
+        ,`usage_cd`
+        ,`usage_nm`
+        ,`amount`
+        ,`remark`
+
+        ) values (
+        #{fileHash}
+        ,#{ymd}
+        ,#{times}
+        ,(select abi.bank_id
+            from account_bank_info abi
+           where abi.bank_acct like concat(#{bankAcct}, '%')
+        )
+        ,(select abi.bank_nm
+            from account_bank_info abi
+           where abi.bank_acct like concat(#{bankAcct}, '%')
+        )
+        ,#{entryCd}
+        ,#{usageCd}
+        ,(select asd.name
+            from account_setting_detail asd
+           where asd.header_id = 4
+             and asd.code = #{usageCd})
+        ,#{amount}
+        ,#{remark}
+        )
+    </insert>
+
+    <insert id="insertBankStatement" parameterType="com.aibees.service.maria.accountbook.entity.vo.BankStatement">
+        insert account_bank_statement (
+         `ymd`
+        ,`times`
+        ,`bank_id`
+        ,`entry`
+        ,`usage_cd`
+        ,`amount`
+        ,`remark`
+        )
+        values (
+         #{ymd}
+        ,#{times}
+        ,#{bankId}
+        ,#{entryCd}
+        ,#{usageCd}
+        ,#{amount}
+        ,#{remark}
+        )
+        on duplicate key
+        update `usage_cd` = #{usageCd}
+        , remark = #{remark}
+    </insert>
+
+    <insert id="insertTmpFileHashName" parameterType="java.util.Map">
+        insert into account_import_file (
+        `file_id`,
+        `file_type`,
+        `file_name`
+        ) values (
+        #{fileId},
+        #{fileType},
+        #{fileName}
+        )
+    </insert>
+
+    <delete id="deleteBankStatementTmp" parameterType="java.lang.String">
+        delete from account_bank_statement_exceltmp
+         where excelfile_id = #{fileHash}
+    </delete>
+
+    <delete id="deleteTmpFileHashName" parameterType="java.util.Map">
+        delete from account_import_file
+         where file_id = #{fileId}
+           and file_type = #{fileType}
+    </delete>
+</mapper>

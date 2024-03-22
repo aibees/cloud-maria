@@ -32,6 +32,8 @@ public class AccountService {
     private final AccountBankInfoMapper bankInfoMapper;
     private final AccountCardInfoMapper cardInfoMapper;
 
+
+
     public List<Map<String, Object>> getCardInfoForOption() {
         List<Map<String, Object>> optionList = accountCardMapper.selectCardInfoForOption();
         optionList.add(0, ImmutableMap.of("card_no", "-1", "card_name", "전체"));
@@ -50,7 +52,10 @@ public class AccountService {
         if(StringUtils.isEquals(MapUtils.getString(cardParam, "usage"), "-1")) {
             cardParam.put("usage", AccConstant.EMPTY_STR); // 전체 Usage 값 들어오면 empty로 변경
         }
-
+        // 2. cardNo
+        if(StringUtils.isEquals(MapUtils.getString(cardParam, "cardNo"), "-1")) {
+            cardParam.put("cardNo", AccConstant.EMPTY_STR); // 전체 cardNo 값 들어오면 empty로 변경
+        }
         return accountCardMapper.selectCardStatementList(cardParam);
     }
 

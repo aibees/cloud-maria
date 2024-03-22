@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aibees.service.maria.common.web.SettingMapper">
+    <select id="selectSettingHeaderList" parameterType="java.util.Map" resultType="java.util.Map">
+        select '' as status
+              ,ash.depart
+              ,ash.category
+              ,ash.code
+              ,ash.desc
+              ,ash.attribute_nm01
+              ,ash.attribute_nm02
+              ,ash.attribute_nm03
+              ,ash.attribute_nm04
+              ,ash.attribute_nm05
+          from account_setting_header ash
+         where ash.depart   like concat('%', #{depart}, '%')
+           and ash.category like concat('%', #{category}, '%')
+           and ash.code     like concat('%', #{code}, '%')
+           and ash.desc     like concat('%', #{desc}, '%')
+    </select>
+
+    <select id="selectSettingDetailList" parameterType="java.lang.Integer" resultType="java.util.Map">
+        select '' as status
+              ,asd.code
+              ,asd.name
+              ,asd.sort
+              ,asd.attribute01
+              ,asd.attribute02
+              ,asd.attribute03
+              ,asd.attribute04
+              ,asd.attribute05
+          from account_setting_detail asd
+         where asd.header_id = #{headerId}
+           and asd.enabled_flag = 'Y'
+    </select>
+
+    <select id="selectSettingDetailListWithHeader" parameterType="java.util.Map" resultType="java.util.Map">
+        select asd.code
+              ,asd.name
+              ,asd.sort
+              ,asd.attribute01
+              ,asd.attribute02
+              ,asd.attribute03
+              ,asd.attribute04
+              ,asd.attribute05
+          from account_setting_detail asd,
+               account_setting_header ash
+         where asd.header_id = ash.id
+           and ash.depart   = #{depart}
+           and ash.category = #{category}
+           and ash.code     = #{title}
+           and asd.enabled_flag = 'Y'
+         order by asd.sort
+    </select>
+
+    <select id="getHeaderDepartList" resultType="java.lang.String">
+        select distinct depart
+          from account_setting_header
+    </select>
+
+    <select id="getHeaderCategoryList" resultType="java.lang.String">
+        select distinct category
+        from account_setting_header
+    </select>
+</mapper>

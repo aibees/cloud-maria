@@ -35,6 +35,7 @@ public class ExcelParserForHYUNDAICARD implements ExcelParser {
 
                     String cardNoStr = data.get(3).substring(data.get(3).length()-4).replace("*", "%");
 
+                    System.out.println("ymd : " + ymd + ", cardNo : " + cardNoStr);
                     return CardStatement.builder()
                             .fileHash(fileHash)
                             .ymd(ymd) // 날짜
@@ -55,9 +56,10 @@ public class ExcelParserForHYUNDAICARD implements ExcelParser {
     }
 
     private String trimTimes(String src) {
+        System.out.println("src : " + src);
         String[] strSplit = src.split(":");
         String hh = (strSplit[0].length() == 1 ? "0" : "") + strSplit[0];
-
+        System.out.println("strSplit : " + strSplit[0] + " / " + strSplit[1]);
         return hh + strSplit[1] + "00";
     }
 

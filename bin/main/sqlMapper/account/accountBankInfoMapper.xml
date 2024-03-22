@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountBankInfoMapper">
+    <resultMap id="bankInfoMapping" type="com.aibees.service.maria.accountbook.entity.vo.BankInfoStatement">
+        <result column="bank_id" property="bankId" />
+        <result column="bank_acct" property="bankAcct" />
+        <result column="bank_cd" property="bankCd" />
+        <result column="bank_nm" property="bankNm" />
+        <result column="bank_type" property="bankType" />
+        <result column="limit_amt" property="limitAmt" />
+    </resultMap>
+
+    <select id="selectBankInfoListByCondition" parameterType="java.util.Map" resultMap="bankInfoMapping">
+        select abi.bank_id
+              ,abi.bank_acct
+              ,abi.bank_cd
+              ,abi.bank_nm
+              ,abi.bank_type
+              ,abi.limit_amt
+          from account_bank_info abi
+         where 1=1
+    </select>
+
+</mapper>

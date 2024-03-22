@@ -11,7 +11,9 @@ import com.aibees.service.maria.accountbook.entity.vo.BankStatement;
 import com.aibees.service.maria.accountbook.util.AccConstant;
 import com.aibees.service.maria.accountbook.util.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.MapUtils;
+import com.aibees.service.maria.common.StringUtils;
 import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -25,10 +27,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_BANK;
-import static com.aibees.service.maria.accountbook.util.AccConstant.IMPORT_CARD;
 
 @Component
 @SuperBuilder
+@Getter
 public class BankData extends AbstractDataInfo implements DataInfo {
 
     // bank data
@@ -147,7 +149,12 @@ public class BankData extends AbstractDataInfo implements DataInfo {
         if("closeDataList".equals(selectType)) {
             this.closeDataList = closeMapper.getBankAmountByUsageAndYm(queryParam);
         } else if("closeDetailList".equals(selectType)) {
-            this.closeDataList = closeMapper.getBankCloseDetailForCheck(queryParam);
+            this.closeDataList = closeMapper.getBankCloseDetailForCheck(queryParam)
+                                            .stream()
+                                            .peek(data -> {
+                                                data.put("confirmStatus", StringUtils.isEquals(MapUtils.getString(data, "confirmStatus"), "CONFIRM"));
+                                                data.put("wasteCheck", StringUtils.isEquals(MapUtils.getString(data, "wasteCheck"), AccConstant.YES));
+                                            }).collect(Collectors.toList());
         }
     }
 
@@ -232,7 +239,7 @@ public class BankData extends AbstractDataInfo implements DataInfo {
                 .collect(Collectors.toList());
     }
 
-    public void setBankCloseStatementWithMap(Map<String, Object> data) {
+    public void setBankCloseStatementWithMap(Map<String, Object> data) throws Exception {
         this.bankCloseStatement = BankCloseStatement
                 .builder()
                 .bankId(MapUtils.getString(data, "bankId"))
@@ -241,21 +248,8 @@ public class BankData extends AbstractDataInfo implements DataInfo {
                 .lossAmount(Long.parseLong(MapUtils.getString(data, "lossAmount").replace(",", "")))
                 .profitAmount(Long.parseLong(MapUtils.getString(data, "profitAmount").replace(",", "")))
                 .incomeAmount(Long.parseLong(MapUtils.getString(data, "incomeAmount").replace(",", "")))
-                .closeYn(MapUtils.getString(data, "closeYn"))
                 .nextYm(MapUtils.getString(data, "nextYm"))
                 .build();
-    }
-
-    public AccountBankCloseMapper getCloseMapper() {
-        return this.closeMapper;
-    }
-
-    public List<BankStatement> getBankStatements() {
-        return this.bankStatements;
-    }
-
-    public BankStatement getBankStatement() {
-        return this.bankStatement;
     }
 
     public void setBankStatements(List<BankStatement> statements) {
@@ -263,28 +257,10 @@ public class BankData extends AbstractDataInfo implements DataInfo {
     }
 
 
-
-    public List<BankInfoStatement> getBankInfoStatements() {
-        return this.bankInfoStatements;
-    }
-
     public void setBankInfoStatementsWithMap(List<Map<String, Object>> data) {
 
     }
-
-    public List<Map<String, Object>> getCloseDataList() {
-        return this.closeDataList;
-    }
-
-    public BankCloseStatement getBankCloseStatement() {
-        return this.bankCloseStatement;
-    }
-
     public void setFileHashName(String fileHash) {
         this.fileHashName = fileHash;
-    }
-
-    public String getFileHashName() {
-        return this.fileHashName;
     }
 }

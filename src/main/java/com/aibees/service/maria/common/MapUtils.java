@@ -27,4 +27,8 @@ public class MapUtils {
         else
             return Long.parseLong(map.get(key).toString());
     }
+
+    public static void printMap(Map<String, Object> map) {
+        map.keySet().forEach(k -> { System.out.println("["+k+"]="+map.get(k)); });
+    }
 }

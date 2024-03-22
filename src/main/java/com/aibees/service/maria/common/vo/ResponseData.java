@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 @Setter
 @Builder
 public class ResponseData {
-    private HttpStatus status;
     private Object data;
     private String message;
 }
