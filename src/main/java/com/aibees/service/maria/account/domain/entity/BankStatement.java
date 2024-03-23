@@ -1,17 +1,16 @@
-package com.aibees.service.maria.accountbook.entity.vo;
+package com.aibees.service.maria.account.domain.entity;
 
-import com.aibees.service.maria.accountbook.entity.vo.pk.BankStatementId;
-import lombok.*;
-import org.springframework.stereotype.Component;
+import com.aibees.service.maria.account.domain.entity.pk.BankStatementId;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Entity
 @Table(name="account_bank_statement")
 @IdClass(BankStatementId.class)
 public class BankStatement {
