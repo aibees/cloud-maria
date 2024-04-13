@@ -1,9 +1,13 @@
 package com.aibees.service.maria.account.service;
 
-import com.aibees.service.maria.accountbook.util.AccConstant;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.vo.ResponseData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public abstract class AccountServiceCommon {
 
@@ -23,5 +27,12 @@ public abstract class AccountServiceCommon {
                         .data(e.getMessage())
                         .build()
         );
+    }
+
+    protected String createFileNameHash() {
+        return LocalDateTime
+                .now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+                .concat(StringUtils.getRandomStr(4));
     }
 }

@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 public class BankStatementReq {
     private String bankId;
+    private String entryCd;
     private String ymdFrom;
     private String ymdTo;
     private String remark;

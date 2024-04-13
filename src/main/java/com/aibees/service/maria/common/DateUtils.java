@@ -1,6 +1,6 @@
 package com.aibees.service.maria.common;
 
-import com.aibees.service.maria.accountbook.util.AccConstant;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.google.common.base.Strings;
 
 import java.text.SimpleDateFormat;

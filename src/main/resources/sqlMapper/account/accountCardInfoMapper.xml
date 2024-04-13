@@ -4,7 +4,7 @@
 
 <mapper namespace="com.aibees.service.maria.accountbook.entity.mapper.AccountCardInfoMapper">
 
-    <resultMap id="cardInfoStatementMapping" type="com.aibees.service.maria.accountbook.entity.vo.CardInfoStatement">
+    <resultMap id="cardInfoStatementMapping" type="com.aibees.service.maria.account.domain.entity.card.CardInfoStatement">
         <result column="card_no" property="cardNo" />
         <result column="payway" property="payway" />
         <result column="card_name" property="cardName" />
@@ -61,7 +61,7 @@
 
     </select>
 
-    <update id="updateCardInfoStatement" parameterType="com.aibees.service.maria.accountbook.entity.vo.CardInfoStatement">
+    <update id="updateCardInfoStatement" parameterType="com.aibees.service.maria.account.domain.entity.card.CardInfoStatement">
         update account_card_info aci
            set aci.card_name = #{cardName}
               ,aci.bankcd = #{bankCd}

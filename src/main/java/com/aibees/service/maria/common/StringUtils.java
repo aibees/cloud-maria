@@ -22,6 +22,14 @@ public class StringUtils {
         return s1.equals(s2);
     }
 
+    public static String getWithDefault(String s1, String defaultStr) {
+        if(isNull(s1)) {
+            return defaultStr;
+        } else {
+            return s1;
+        }
+    }
+
     public static String UuidNumberFormat(int num) {
         StringBuilder num_str = new StringBuilder(Integer.toString(num));
         int len = num_str.length();
