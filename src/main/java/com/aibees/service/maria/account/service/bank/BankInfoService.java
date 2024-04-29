@@ -25,7 +25,11 @@ public class BankInfoService extends AccountServiceCommon {
         // TODO : validation
         try {
 
-            List<BankInfo> bankInfos = null;
+            List<BankInfo> bankInfos = bankInfoRepo.findAllByBankNmContainingAndBankAcctContainingAndUseYn(
+                    param.getBankNm(),
+                    param.getBankAcct(),
+                    param.getUseYn()
+            );
 
             return successResponse(bankInfos);
         } catch(Exception e) {

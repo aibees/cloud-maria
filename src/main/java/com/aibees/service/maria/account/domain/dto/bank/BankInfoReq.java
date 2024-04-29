@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BankInfoReq {
     private String bankId;
+    private String bankNm;
     private String bankCd;
     private String bankAcct;
     private String useYn;

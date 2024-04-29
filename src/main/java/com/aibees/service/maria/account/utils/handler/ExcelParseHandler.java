@@ -1,4 +1,4 @@
-package com.aibees.service.maria.account.util.handler;
+package com.aibees.service.maria.account.utils.handler;
 
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.StringUtils;
@@ -100,7 +100,7 @@ public class ExcelParseHandler {
     }
 
     private static void getExcelParser(String type) throws Exception {
-        String parserPrefix = "com.aibees.service.maria.account.util.handler.ExcelParserFor";
+        String parserPrefix = "com.aibees.service.maria.account.utils.handler.ExcelParserFor";
         Class<ExcelParser> parserClass = (Class<ExcelParser>) Class.forName(String.join(".", parserPrefix, type));
 
         parser = parserClass.getDeclaredConstructor().newInstance();

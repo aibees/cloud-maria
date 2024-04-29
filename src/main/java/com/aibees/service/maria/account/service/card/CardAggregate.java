@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 public class CardAggregate {
-    private final CardService cardService;
+//    private final CardService cardService;
 
 //    /**
 //     * 카드 별 이번 달 잔액

@@ -1,15 +1,23 @@
 package com.aibees.service.maria.account.domain.entity.card;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
+import com.aibees.service.maria.account.domain.entity.card.pk.CardStatementId;
+import lombok.*;
 
+import javax.persistence.*;
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
+@Entity
 @Builder
-@ToString
+@Table(name="account_card_statement")
+@IdClass(CardStatementId.class)
 public class CardStatement {
+    @Id
     private String ymd;
+    @Id
     private String approvNum;
+    @Id
     private String cardNo;
     private String usageCd;
     private long amount;

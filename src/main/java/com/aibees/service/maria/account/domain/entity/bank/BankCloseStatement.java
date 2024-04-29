@@ -3,10 +3,7 @@ package com.aibees.service.maria.account.domain.entity.bank;
 import com.aibees.service.maria.account.domain.entity.bank.pk.BankCloseId;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor

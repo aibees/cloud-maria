@@ -28,7 +28,7 @@ interface BankStatementCustom {
 class BankStatementCustomImpl implements BankStatementCustom {
 
     private final JPAQueryFactory query;
-    private final QBankStatement qBankStatement;
+    private static final QBankStatement qBankStatement = QBankStatement.bankStatement;
 
     @Override
     public List<BankStatement> getBankStatementListByCondition(BankStatementReq param) {
@@ -47,9 +47,9 @@ class BankStatementCustomImpl implements BankStatementCustom {
             whereBuilder.and(qBankStatement.ymd.between(param.getYmdFrom(), param.getYmdTo()));
         }
 
-        if(Objects.isNull(param.getAmountFrom()) &&
-                Objects.isNull(param.getAmountTo())) {
-            whereBuilder.and(qBankStatement.ymd.between(param.getYmdFrom(), param.getYmdTo()));
+        if(!Objects.isNull(param.getAmountFrom()) &&
+                !Objects.isNull(param.getAmountTo())) {
+            whereBuilder.and(qBankStatement.amount.between(param.getAmountFrom(), param.getAmountTo()));
         }
 
         if(StringUtils.isNotNull(param.getRemark())) {

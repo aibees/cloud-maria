@@ -30,8 +30,8 @@ interface AccountSettingCustom {
 @AllArgsConstructor
 class AccountSettingCustomImpl implements AccountSettingCustom {
     private final JPAQueryFactory query;
-    private final QAccountSetting qHeader;
-    private final QAccountSettingDetail qDetail;
+    private static final QAccountSetting qHeader = QAccountSetting.accountSetting;
+    private static final QAccountSettingDetail qDetail = QAccountSettingDetail.accountSettingDetail;
 
     @Override
     public List<AccountSettingRes> getSettingDetails(AccountSettingReq param) {
@@ -41,9 +41,9 @@ class AccountSettingCustomImpl implements AccountSettingCustom {
                ,qHeader.headerId.as("headerId")
                ,qHeader.mainCategory.as("mainCategory")
                ,qHeader.subCategory.as("subCategory")
-               ,qHeader.code.as("hCode")
+               ,qHeader.code.as("headerCode")
                ,qHeader.desc.as("headerDesc")
-               ,qDetail.code.as("dCode")
+               ,qDetail.code.as("detailCode")
                ,qDetail.name.as("name")
                ,qDetail.sort.as("sort")
                ,qDetail.enabledFlag.as("enabledFlag")

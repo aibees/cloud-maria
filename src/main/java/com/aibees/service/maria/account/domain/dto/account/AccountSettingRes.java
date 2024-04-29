@@ -14,9 +14,9 @@ public class AccountSettingRes {
     private long headerId;
     private String mainCategory;
     private String subCategory;
-    private String hCode;
+    private String headerCode;
     private String headerDesc;
-    private String dCode;
+    private String detailCode;
     private String name;
     private int sort;
     private String enabledFlag;

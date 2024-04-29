@@ -1,4 +1,4 @@
-package com.aibees.service.maria.account.util.handler;
+package com.aibees.service.maria.account.utils.handler;
 
 import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;

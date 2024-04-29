@@ -1,7 +1,14 @@
-// plugin
+buildscript {
+    ext {
+        queryDslVersion = "5.0.0"
+    }
+}
+
 plugins {
-    id 'org.springframework.boot' version '2.4.5'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.7.7'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    //querydsl 추가
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
 }
 
@@ -15,6 +22,12 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
 // custom properties
 ext {
     set('springCloudVersion', "2020.0.0")
@@ -22,29 +35,44 @@ ext {
 
 // dependencies
 dependencies {
+    // String Boot Starter Pack
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
-    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    implementation 'com.drewnoakes:metadata-extractor:2.11.0'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.0'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+
+    // jdbc
     implementation group: 'org.bgee.log4jdbc-log4j2', name:'log4jdbc-log4j2-jdbc4.1', version: '1.16'
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    // poi
     implementation group: 'org.apache.poi', name: 'poi', version: '3.11'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.11'
+
+    // swagger
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+
+    // file metadata
+    implementation 'com.drewnoakes:metadata-extractor:2.11.0'
+
+    // queryDSL 설정
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}" // querydsl 라이브러리
+    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}" //  Querydsl 관련 코드 생성 기능 제공
+
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 대응 코드
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api" // java.lang.NoClassDefFoundError (javax.annotation.Entity) 대응 코드
 
 //    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'commons-io:commons-io:2.4'
     implementation 'com.google.guava:guava:23.0'
-    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jpa"
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // lombok
     compileOnly 'org.projectlombok:lombok:1.18.22'
-    runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 }
@@ -53,4 +81,22 @@ dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets { // IDE의 소스 폴더에 자동으로 넣어준다.
+    main.java.srcDir querydslDir
+}
+
+configurations {
+    querydsl.extendsFrom compileClasspath // 컴파일이 될때 같이 수행
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl // Q파일을 생성해준다.
 }

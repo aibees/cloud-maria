@@ -6,11 +6,13 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountSettingDetailId {
+public class AccountSettingDetailId implements Serializable {
     private long headerId;
     private String code;
 }

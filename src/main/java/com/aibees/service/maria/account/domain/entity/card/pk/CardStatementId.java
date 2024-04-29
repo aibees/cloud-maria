@@ -11,8 +11,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class CardStatementTmpId implements Serializable {
-    private String fileHash;
+public class CardStatementId implements Serializable {
     private String ymd;
     private String approvNum;
     private String cardNo;

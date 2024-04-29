@@ -1,6 +1,5 @@
 package com.aibees.service.maria.account.service.bank;
 
-import com.aibees.service.maria.account.domain.dto.account.AccountSettingRes;
 import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.domain.entity.account.AccountImportFile;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
@@ -10,7 +9,8 @@ import com.aibees.service.maria.account.domain.repo.bank.BankStatementRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementTmpRepo;
 import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.account.util.handler.ExcelParseHandler;
+import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
+import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.vo.ResponseData;
 import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -38,6 +38,7 @@ public class BankService extends AccountServiceCommon {
      **** Bank  Statement ****
      *************************/
     public List<BankStatement> getBankStatementList(BankStatementReq params) {
+        checkParams(params);
         return statementRepo.getBankStatementListByCondition(params);
     }
 
@@ -95,5 +96,23 @@ public class BankService extends AccountServiceCommon {
                 .fileName(originName)
                 .build();
         importFileRepo.save(importFile);
+    }
+
+    private void checkParams(BankStatementReq stateParam) {
+        if(StringUtils.isNull(stateParam.getYmdFrom())) {
+            stateParam.setYmdFrom("19000101");
+        }
+
+        if(StringUtils.isNull(stateParam.getYmdTo())) {
+            stateParam.setYmdTo("29991231");
+        }
+
+        if(Objects.isNull(stateParam.getAmountFrom())) {
+            stateParam.setAmountFrom(0L);
+        }
+
+        if(Objects.isNull(stateParam.getAmountTo())) {
+            stateParam.setAmountTo(999999999L);
+        }
     }
 }
