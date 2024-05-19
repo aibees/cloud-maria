@@ -13,6 +13,7 @@ public class BankInfoReq {
     private String bankId;
     private String bankNm;
     private String bankCd;
+    private String bankType;
     private String bankAcct;
     private String useYn;
     private String trxType;

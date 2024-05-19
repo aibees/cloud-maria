@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -25,16 +28,37 @@ public class BankInfoService extends AccountServiceCommon {
         // TODO : validation
         try {
 
-            List<BankInfo> bankInfos = bankInfoRepo.findAllByBankNmContainingAndBankAcctContainingAndUseYn(
-                    param.getBankNm(),
-                    param.getBankAcct(),
-                    param.getUseYn()
-            );
+            List<BankInfo> bankInfos = bankInfoRepo.getBankInfoListByCondition(param)
+                    .stream()
+                    .peek(bank -> {
+                        Long limitAmt = bank.getLimitAmt();
+                        bank.setLimitAmt(limitAmt == null ? -1L : limitAmt);
+                        bank.setUseYn(StringUtils.isNull(bank.getUseYn()) ? AccConstant.No : bank.getUseYn());
+                    })
+                    .collect(Collectors.toList());
 
             return successResponse(bankInfos);
         } catch(Exception e) {
             return failedResponse(e);
         }
+    }
+
+    public List<BankInfo> getBankInfoByCond(BankInfoReq param) {
+        return bankInfoRepo.getBankInfoListByCondition(param);
+    }
+
+    /**
+     * select option을 위한 은행 별 선택지 만들기
+     * aggregate에서 setting_code와 Name 매핑
+     * @return
+     */
+    public List<String> getBankSelectList(BankInfoReq param) {
+        Set<String> bankInfos = bankInfoRepo.getBankInfoListByCondition(param)
+            .stream()
+            .collect(Collectors.groupingBy(BankInfo::getBankCd))
+            .keySet();
+
+        return List.copyOf(bankInfos);
     }
 
     public ResponseEntity<ResponseData> saveBankInfoList(BankInfoReq param) {

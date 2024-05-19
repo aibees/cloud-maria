@@ -13,7 +13,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Builder
-@Table(name="account_bank_statement")
+@Table(name="account_bank_statement_exceltmp")
 @IdClass(BankStatementTmpId.class)
 public class BankStatementTmp {
     @Id

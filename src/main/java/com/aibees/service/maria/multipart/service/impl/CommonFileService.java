@@ -1,18 +1,24 @@
 package com.aibees.service.maria.multipart.service.impl;
 
+import com.aibees.service.maria.common.MapUtils;
 import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.vo.ResponseData;
 import com.aibees.service.maria.multipart.domain.dto.CommonFileCondition;
 import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.entity.CommonFileEntity;
 import com.aibees.service.maria.multipart.domain.repo.FileStoreRepository;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,13 +35,15 @@ public class CommonFileService {
 
     /**
      * 해당파일 child 리스트를 조회
-     * @param fileParam
+     * @param fileId
      * @return
      */
-    public List<FileVo> getResourceList(CommonFileCondition fileParam) {
-        CommonFileEntity fileData = fileStoreRepo.findOneById(fileParam.getFileId());
+    public ResponseEntity<ResponseData> getResourceList(Long fileId) {
+        System.out.println("==========getResourceList :: " + fileId);
+        CommonFileEntity fileData = fileStoreRepo.findOneById(fileId);
 
-        return fileStoreRepo.findAllByParentId(fileData.getId())
+        // Get Child Dir&file List
+        List<FileVo> resultList = fileStoreRepo.findAllByParentId(fileData.getId())
                 .stream().map(entity -> {
 
                         FileVo curFile = FileVo.builder()
@@ -44,15 +52,42 @@ public class CommonFileService {
                                 .fileName(entity.getFilename())
                                 .name(StringUtils.isNotNull(entity.getAlias()) ? entity.getAlias() : entity.getFilename())
                                 .ext((entity.getExt()))
-                                .build();
+                                . build();
 
-                        Map<String, String> paths = getFullDirPathAll(curFile);
-                        curFile.setPath(paths.get(ABS_PATH_ROUTE).replace("/app/maria", ""));
-                        curFile.setPathName(paths.get(ABS_PATH_NAME));
+                        Map<String, Object> paths = getFullDirPathAll(curFile);
+                        curFile.setPath(MapUtils.getString(paths, ABS_PATH_ROUTE).replace("/app/maria", ""));
+                        curFile.setPathName(MapUtils.getString(paths, ABS_PATH_NAME));
 
                         return curFile;
                     }
                 ).collect(Collectors.toList());
+
+        Comparator<FileVo> extReverse = Comparator.comparing(FileVo::getExt);
+        resultList.sort(extReverse.thenComparing(FileVo::getName));
+
+        FileVo toBefore = FileVo.builder()
+                .id(fileData.getParentId())
+                .fileName("..")
+                .name("..")
+                .ext("dir")
+                .build();
+
+        if(fileId != 0) {
+            resultList.add(0, toBefore);
+        }
+
+        // Get Absolute Path
+        FileVo curFile = new FileVo();
+        curFile.setId(fileData.getId());
+        curFile.setParentId(fileData.getParentId());
+        curFile.setFileName(fileData.getFilename());
+
+        Map<String, Object> result = getFullDirPathAll(curFile);
+        result.put("childList", resultList);
+
+        return ResponseEntity.ok().body(
+                ResponseData.builder().data(result).build()
+        );
     }
 
     /**
@@ -81,50 +116,65 @@ public class CommonFileService {
      * @param param
      * @return
      */
-    public FileVo createDirectory(FileVo param) {
-        // 0. 새로운 DIR 만들 위치의 absolute Path를 찾는다.
-        FileVo parent = FileVo.convertEntity(fileStoreRepo.findOneById(param.getParentId()));
-        parent.setAbsoluePath(this.getFullDirPath(parent));
-        String newAbsPath = parent.getAbsoluePath() + "/" + param.getFileName();
+    public ResponseEntity<ResponseData> createDirectory(FileVo param) {
+        try {
+            // 0. 새로운 DIR 만들 위치의 absolute Path를 찾는다.
+            FileVo parent = FileVo.convertEntity(fileStoreRepo.findOneById(param.getParentId()));
+            System.out.println("=======parent File Vo : " + parent.toString());
+            parent.setAbsoluePath(this.getFullDirPath(parent));
+            String newAbsPath = parent.getAbsoluePath() + "/" + param.getFileName();
 
-        long fileNewId = fileStoreRepo.getMaxId();
+            long fileNewId = fileStoreRepo.getMaxId();
 
-        // 1. get newFile Vo
-        FileVo newFile = FileVo.builder()
-                .id(fileNewId)
-                .parentId(param.getParentId())
-                .fileName(param.getFileName())
-                .ext(param.getExt())
-                .absoluePath(newAbsPath)
-                .createAt(LocalDateTime.now())
-                .build();
+            // 1. get newFile Vo
+            FileVo newFile = FileVo.builder()
+                    .id(fileNewId)
+                    .parentId(param.getParentId())
+                    .fileName(param.getFileName())
+                    .name(param.getName())
+                    .ext("dir")
+                    .absoluePath(newAbsPath)
+                    .createAt(LocalDateTime.now())
+                    .build();
 
-        // 2. mkdir process
-        String createDir = "";
+            // 2. mkdir process
+            String createDir = "";
 
-        if(System.getProperty("os.name").toLowerCase().contains("win")) {
-            createDir = "C:\\maria_test".concat(newFile.getAbsoluePath().replace(SLASH, SLASH_WIN));
-        } else {
-            createDir = "/app/maria".concat(newFile.getAbsoluePath());
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                createDir = "C:\\maria_test".concat(newFile.getAbsoluePath().replace(SLASH, SLASH_WIN));
+            } else {
+                createDir = "/app/maria".concat(newFile.getAbsoluePath());
+            }
+            File destFolder = new File(createDir);
+            System.out.println(destFolder.isDirectory());
+            boolean result = destFolder.mkdirs();
+
+            System.out.println(createDir + " / File mkdirs result : " + result);
+
+            // 3. db insert
+            if (result || destFolder.exists()) {
+                fileStoreRepo.save(
+                        CommonFileEntity
+                                .builder()
+                                .id(newFile.getId())
+                                .parentId(newFile.getParentId())
+                                .parentName(parent.getFileName())
+                                .filename(newFile.getFileName())
+                                .ext(newFile.getExt())
+                                .alias(newFile.getName())
+                                .createAt(newFile.getCreateAt())
+                                .build());
+            }
+
+            return ResponseEntity.ok().body(
+                    ResponseData.builder().message("SUCCESS").build()
+            );
+        } catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ResponseData.builder().message("FAILED").build()
+            );
         }
-        File destFolder = new File(createDir);
-        boolean result = destFolder.mkdirs();
-
-        // 3. db insert
-        if(result) {
-            fileStoreRepo.save(
-                    CommonFileEntity
-                            .builder()
-                            .id(newFile.getId())
-                            .parentId(newFile.getParentId())
-                            .filename(newFile.getFileName())
-                            .ext(newFile.getExt())
-                            .alias(newFile.getPathName())
-                            .createAt(newFile.getCreateAt())
-                            .build());
-        }
-
-        return newFile;
     }
 
     public int deleteDirectory(FileVo param) {
@@ -158,27 +208,31 @@ public class CommonFileService {
     }
 
     private String getFullDirPath(FileVo file) {
-        return this.getFullDirPathAll(file).get(ABS_PATH_ROUTE).replace("/app/maria", "");
+        String path = MapUtils.getString(getFullDirPathAll(file), ABS_PATH_ROUTE);
+        return path.replace("/app/maria", "");
     }
 
     private String getFullDirPathName(FileVo file) {
-        return this.getFullDirPathAll(file).get(ABS_PATH_NAME);
+        return MapUtils.getString(getFullDirPathAll(file), ABS_PATH_NAME);
     }
 
-    private Map<String, String> getFullDirPathAll(FileVo file) {
-        Map<String, String> result = new HashMap<>();
+    private Map<String, Object> getFullDirPathAll(FileVo file) {
+        Map<String, Object> result = new HashMap<>();
 
         // directory 는 전부 가져온다.
+        List<CommonFileEntity> dirList = fileStoreRepo.findAllByExt("dir");
         Map<Long, FileVo> dirMap = new HashMap<>();
-        fileStoreRepo.findAllByExt("dir")
-                .parallelStream().forEach(entity ->
-                dirMap.put(entity.getId(),
-                        FileVo.builder()
-                                .id(entity.getId())
-                                .parentId(entity.getParentId())
-                                .fileName(entity.getFilename())
-                                .name(entity.getAlias())
-                                .build()));
+
+        dirList.parallelStream().forEach(
+            entity -> {
+                FileVo data = new FileVo();
+                data.setId(entity.getId());
+                data.setParentId(entity.getParentId());
+                data.setFileName(entity.getFilename());
+
+                dirMap.put(entity.getId(), data);
+            }
+        );
 
         FileVo curFile = file;
         String pathRoute = SLASH.concat(file.getFileName());

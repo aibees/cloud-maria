@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class FileVo {
     private long id;
     private long parentId;
+    private String parentName;
     private String pathName;
     private String path;
     private String fileName;
@@ -29,6 +30,7 @@ public class FileVo {
                 .id(entity.getId())
                 .parentId(entity.getParentId())
                 .fileName(entity.getFilename())
+                .parentName(entity.getParentName())
                 .ext(entity.getExt())
                 .createAt(entity.getCreateAt())
                 .build();

@@ -4,6 +4,7 @@ import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.facade.AccountFacade;
 import com.aibees.service.maria.account.service.bank.BankAggregate;
+import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.vo.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,22 @@ import java.util.Map;
 @Slf4j
 public class BankController {
 
-    private final BankAggregate bankServices;
+    private final BankAggregate bankAggregate;
     private final AccountFacade accountFacade;
+
+    /***************************************************
+     ********       Bank - tmp Statement        ********
+     ***************************************************/
+
+    /**
+     * Bank Temp Statement 리스트 조회
+     * @param hashId
+     * @return
+     */
+    @GetMapping("/temp/list")
+    public ResponseEntity<ResponseData> getBankStatementTmpList(@RequestParam(name = "hashId") String hashId) {
+        return bankAggregate.getBankStatementTmpList(hashId);
+    }
 
     /***************************************************
      ********     Bank - Account Statement      ********
@@ -33,14 +48,14 @@ public class BankController {
      */
     @GetMapping("/statement/list")
     public ResponseEntity<ResponseData> getBankStatementList(BankStatementReq param) {
-        log.info(param.toString());
-        return bankServices.getBankStatementList(param);
+        return bankAggregate.getBankStatementList(param);
     }
 
     @PostMapping("")
     public ResponseEntity<ResponseData> saveBankStatement(@RequestBody Map<String, Object> data) {
-        return bankServices.saveBankStatement(data);
+        return bankAggregate.saveBankStatement(data);
     }
+
     /***************************************************
      ********        Bank - Account Info        ********
      ***************************************************/
@@ -52,8 +67,7 @@ public class BankController {
      */
     @GetMapping("/info/list")
     public ResponseEntity<ResponseData> getBankInfoList(BankInfoReq param) {
-        log.info(param.toString());
-        return bankServices.getBankInfoList(param);
+        return bankAggregate.getBankInfoList(param);
     }
 
     /**
@@ -63,7 +77,7 @@ public class BankController {
      */
     @PostMapping("/info")
     public ResponseEntity<ResponseData> saveBankInfo(@RequestBody BankInfoReq param) {
-        return bankServices.saveBankInfo(param);
+        return bankAggregate.saveBankInfo(param);
     }
 
     @PostMapping("/file")
@@ -71,4 +85,15 @@ public class BankController {
         return accountFacade.excelParse(type, file);
     }
 
+    /***************************************************
+     ********        Bank - Account Info        ********
+     ***************************************************/
+    @GetMapping("/option")
+    public ResponseEntity<ResponseData> getOptionData(@RequestParam(name = "tag")String tag) {
+        if(StringUtils.isEquals(tag, "BANK_SELECT")) {
+            return bankAggregate.getBankSelectList();
+        } else {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 }

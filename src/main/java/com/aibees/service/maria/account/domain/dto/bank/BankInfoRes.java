@@ -13,5 +13,5 @@ public class BankInfoRes {
     private String bankCd;
     private String bankNm;
     private String bankType;
-    private long limitAmt;
+    private Long limitAmt;
 }

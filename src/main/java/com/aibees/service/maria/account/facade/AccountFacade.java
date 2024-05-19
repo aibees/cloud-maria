@@ -9,7 +9,6 @@ import com.aibees.service.maria.common.vo.ResponseData;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +39,7 @@ public class AccountFacade {
         try {
             List<ImportFileRes> fileNameList = importFileRepo.findAll()
                 .stream()
+                .filter(file -> StringUtils.isEquals(file.getFileType(), type))
                 .map(file -> ImportFileRes
                     .builder()
                     .fileId(file.getFileId())
@@ -65,9 +65,19 @@ public class AccountFacade {
 
     public ResponseEntity<ResponseData> getStatementTmpByFileHash(String type, String hashId) {
         if(StringUtils.isEquals(type, AccConstant.IMPORT_BANK)) {
-            return bankService.getBankStatementTmpList(hashId);
+            return ResponseEntity.ok(
+                    ResponseData.builder()
+                            .data(bankService.getBankStatementTmpList(hashId))
+                            .message(AccConstant.CM_SUCCESS).build()
+            );
         } else {
-            return null;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(
+                            ResponseData.builder()
+                                    .message(AccConstant.CM_FAILED)
+                                    .data("ERROR")
+                                    .build()
+                    );
         }
     }
 }

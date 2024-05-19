@@ -1,10 +1,12 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
+import com.aibees.service.maria.common.vo.ResponseData;
 import com.aibees.service.maria.multipart.domain.dto.CommonFileCondition;
 import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
 import com.aibees.service.maria.multipart.service.impl.CommonFileService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,19 +27,9 @@ public class CommonController {
      * @param fileParam
      * @return
      */
-    @PostMapping("/list")
-    public List<FileVo> getChildFiles(@RequestBody CommonFileCondition fileParam) {
-        return commonFileService.getResourceList(fileParam);
-    }
-
-    /**
-     * 상위 폴더로 올라간 후 상위폴더의 child 리스트 조회
-     * @param fileId
-     * @return
-     */
-    @PostMapping("/back")
-    public Map<String, Object> getParentWithLists(@RequestParam(value="fileId") String fileId) {
-        return commonFileService.getParentFileList(fileId);
+    @GetMapping("/list")
+    public ResponseEntity<ResponseData> getChildFiles(@RequestParam(name = "fileId") Long fileId) {
+        return commonFileService.getResourceList(fileId);
     }
 
     /**
@@ -56,7 +48,10 @@ public class CommonController {
      * @return
      */
     @PostMapping("/folder")
-    public FileVo createDir(@RequestBody FileVo vo) {
+    public ResponseEntity<ResponseData> createDir(@RequestBody FileVo vo) {
+        System.out.println(vo.toString());
         return commonFileService.createDirectory(vo);
     }
+
+
 }

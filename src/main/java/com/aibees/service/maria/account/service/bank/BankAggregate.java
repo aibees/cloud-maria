@@ -5,11 +5,16 @@ import com.aibees.service.maria.account.domain.dto.account.AccountSettingRes;
 import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankStatementRes;
+import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
+import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
 import com.aibees.service.maria.account.domain.repo.account.AccountSettingRepo;
 import com.aibees.service.maria.account.service.AccountServiceCommon;
+import com.aibees.service.maria.account.service.account.SettingService;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.vo.ResponseData;
+import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -26,7 +31,7 @@ public class BankAggregate extends AccountServiceCommon {
     private final BankCloseService bankCloseService;
     private final BankInfoService bankInfoService;
 
-    private final AccountSettingRepo settingRepo;
+    private final SettingService settingService;
 
     public ResponseEntity<ResponseData> getBankStatementList(BankStatementReq param) {
         try {
@@ -34,11 +39,11 @@ public class BankAggregate extends AccountServiceCommon {
             settingParam.setMainCategory("ACCOUNT");
             settingParam.setSubCategory("COMBO");
 
-            Map<String, List<AccountSettingRes>> settingMap = settingRepo.getSettingDetails(settingParam)
-                    .stream().collect(Collectors.groupingBy(AccountSettingRes::getHeaderCode));
+            settingParam.setHCode("USAGE");
+            List<AccountSettingRes> usageSettings = settingService.getSettingListByCond(settingParam);
 
-            List<AccountSettingRes> usageSettings = settingMap.get("USAGE");
-            List<AccountSettingRes> entrySettings = settingMap.get("ENTRY");
+            settingParam.setHCode("ENTRY");
+            List<AccountSettingRes> entrySettings = settingService.getSettingListByCond(settingParam);
 
             List<BankStatement> statements = bankService.getBankStatementList(param);
 
@@ -79,10 +84,58 @@ public class BankAggregate extends AccountServiceCommon {
     }
 
     public ResponseEntity<ResponseData> getBankInfoList(BankInfoReq param) {
+        return bankInfoService.getBankInfoList(param);
+    }
+
+    public ResponseEntity<ResponseData> getBankStatementTmpList(String fileHashId) {
+        List<BankStatementTmp> tmpList = bankService.getBankStatementTmpList(fileHashId);
+
+        BankInfoReq req = BankInfoReq.builder().build();
+        Map<String, String> bankInfos = bankInfoService.getBankInfoByCond(req)
+                .stream()
+                .collect(Collectors.groupingBy(BankInfo::getBankId, Collectors.mapping(BankInfo::getBankNm, Collectors.joining())));
+
+        List<BankStatementRes> resultList = tmpList.stream()
+                .map(tmp ->
+                        BankStatementRes.builder()
+                        .fileHash(tmp.getFileHash())
+                        .bankId(tmp.getBankId())
+                        .bankNm(bankInfos.get(tmp.getBankId()))
+                        .entryCd(tmp.getEntryCd())
+                        .entryNm(tmp.getEntryCd().equals("1") ? "지출" : "수입")
+                        .usageCd(tmp.getUsageCd())
+                        .ymd(tmp.getYmd())
+                        .times(tmp.getTimes())
+                        .remark(tmp.getRemark())
+                        .amount(tmp.getAmount())
+                        .build())
+                .collect(Collectors.toList());
+
+        return successResponse(resultList);
+    }
+
+    public ResponseEntity<ResponseData> getBankSelectList() {
         try {
-            List<>
-            return successResponse(null);
+            BankInfoReq infoReq = new BankInfoReq();
+            infoReq.setUseYn(AccConstant.YES);
+            infoReq.setBankType("입출금");
+            List<String> bankSelectCd = bankInfoService.getBankSelectList(infoReq);
+
+            AccountSettingReq settingParam = new AccountSettingReq();
+            settingParam.setMainCategory("ACCOUNT");
+            settingParam.setSubCategory("COMBO");
+            settingParam.setHCode("BANK");
+            Map<String, String> bankSetting = settingService.getSettingListByCond(settingParam)
+                    .stream()
+                    .collect(Collectors.groupingBy(AccountSettingRes::getDetailCode, Collectors.mapping(AccountSettingRes::getName, Collectors.joining())));
+
+            List<Map<String, String>> result = bankSelectCd.stream()
+                    .map(code -> ImmutableMap.of("code", code, "name", bankSetting.get(code)
+                    )).collect(Collectors.toList());
+
+            return successResponse(result);
         } catch(Exception e) {
+            e.printStackTrace();
             return failedResponse(e);
         }
     }

@@ -73,6 +73,10 @@ class AccountSettingCustomImpl implements AccountSettingCustom {
             whereClause.and(qHeader.subCategory.eq(param.getSubCategory()));
         }
 
+        if(StringUtils.isNotNull(param.getHCode())) {
+            whereClause.and(qHeader.code.eq(param.getHCode()));
+        }
+
         return whereClause;
     }
 }

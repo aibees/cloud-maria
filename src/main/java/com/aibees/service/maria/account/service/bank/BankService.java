@@ -75,8 +75,8 @@ public class BankService extends AccountServiceCommon {
         }
     }
 
-    public ResponseEntity<ResponseData> getBankStatementTmpList(String fileHashId) {
-        return successResponse(statementTmpRepo.findAllByFileHash(fileHashId));
+    public List<BankStatementTmp> getBankStatementTmpList(String fileHashId) {
+        return statementTmpRepo.findAllByFileHash(fileHashId);
     }
 
     public ResponseEntity<ResponseData> saveBankStatement() {

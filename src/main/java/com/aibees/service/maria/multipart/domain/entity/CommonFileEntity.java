@@ -10,16 +10,18 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="file_store")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="file_store")
 public class CommonFileEntity {
     @Id
     private long id;
-    private long parentId;
     private String filename;
+    private long parentId;
+    @Column(name="parent_name")
+    private String parentName;
     private String ext;
     private LocalDateTime createAt;
     private String alias;

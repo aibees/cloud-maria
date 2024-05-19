@@ -2,6 +2,7 @@ package com.aibees.service.maria.account.domain.entity.bank;
 
 import lombok.*;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 
 @NoArgsConstructor
@@ -17,7 +18,8 @@ public class BankInfo {
     private String bankCd;
     private String bankNm;
     private String bankType;
-    private long limitAmt;
+    @Nullable
+    private Long limitAmt;
     private String startDate;
     private String useYn;
 }
