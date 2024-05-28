@@ -2,6 +2,10 @@ package com.aibees.service.maria.common;
 
 import com.google.common.base.Strings;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Random;
 
 public class StringUtils {
@@ -84,5 +88,27 @@ public class StringUtils {
             return false;
         }
         return true;
+    }
+
+    public static String generateRandomHash(int length) throws NoSuchAlgorithmException {
+        SecureRandom random = new SecureRandom();
+        byte[] randomBytes = new byte[16];
+        random.nextBytes(randomBytes);
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = digest.digest(randomBytes);
+
+        // Encode to Base64 to ensure it's readable and then trim to desired length
+        String hash = Base64.getUrlEncoder().withoutPadding().encodeToString(hashBytes);
+
+        if (hash.length() > length) {
+            hash = hash.substring(0, length);
+        } else {
+            while (hash.length() < length) {
+                hash += "0"; // Pad with zeros if the hash is shorter than desired length
+            }
+        }
+
+        return hash;
     }
 }

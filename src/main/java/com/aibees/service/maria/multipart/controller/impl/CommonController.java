@@ -24,7 +24,7 @@ public class CommonController {
 
     /**
      * 해당파일 child 리스트를 조회
-     * @param fileParam
+     * @param fileId
      * @return
      */
     @GetMapping("/list")

@@ -28,7 +28,7 @@ public class ScheduleConfiguration {
                         .groupCode("MARIA")
                         .jobCode("FILE_SYNC")
                         .jobName("Maria File Syncro Job")
-                        .cronjob("0/5 * * * * ?")
+                        .cronjob("0/30 * * * * ?")
                         .className("FileSyncroJob")
                         .build()
         );
@@ -38,13 +38,13 @@ public class ScheduleConfiguration {
                 JobDetail detail = createJobDetail(job);
                 Trigger trigger = createTrigger(job);
 
-                //scheduler.scheduleJob(detail, trigger);
+                scheduler.scheduleJob(detail, trigger);
             }
 
 //        } catch(ClassNotFoundException | SchedulerException cnf) {
 //            cnf.printStackTrace();
 //        }
-        } catch(ClassNotFoundException cnf) {
+        } catch(ClassNotFoundException | SchedulerException cnf) {
             cnf.printStackTrace();
         }
     }

@@ -1,9 +1,11 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
+import com.aibees.service.maria.common.vo.ResponseData;
 import com.aibees.service.maria.multipart.controller.FileController;
+import com.aibees.service.maria.multipart.domain.dto.FileImageReq;
 import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
 import com.aibees.service.maria.multipart.domain.vo.ImageFileVo;
-import com.aibees.service.maria.multipart.service.impl.ImageFileService;
+import com.aibees.service.maria.multipart.service.impl.FileImageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -22,7 +24,7 @@ import java.util.Objects;
 @RequestMapping("/image")
 public class ImageController implements FileController {
 
-    private final ImageFileService imageFileService;
+    private final FileImageService fileImageService;
 
     @GetMapping({ "/list/{category}", "/list/{category}/{ym}" })
     public ResponseEntity<List<ImageFileVo>> getImageListByCondition(ImageFileCondition params) {
@@ -30,7 +32,7 @@ public class ImageController implements FileController {
         params.setCategory(params.getCategory().toUpperCase());
 
         return ResponseEntity.ok().body(
-            imageFileService.getImageListByCondition(
+            fileImageService.getImageListByCondition(
                     ImageFileCondition
                             .builder()
                             .category(params.getCategory())
@@ -38,6 +40,12 @@ public class ImageController implements FileController {
                             .build()
             )
         );
+    }
+
+    @GetMapping("/display")
+    public ResponseEntity<ResponseData> getDisplayImageList(FileImageReq params) {
+
+        return fileImageService.getDisplayImage(params);
     }
 
     /**
@@ -52,7 +60,7 @@ public class ImageController implements FileController {
             return ResponseEntity
                    .ok()
                    .contentType(MediaType.parseMediaType(MediaType.IMAGE_PNG_VALUE))
-                   .body(imageFileService.getResource(params));
+                   .body(fileImageService.getResource(params));
         } catch(IOException e) {
             log.info(e.getMessage());
             return ResponseEntity.badRequest().body(null);

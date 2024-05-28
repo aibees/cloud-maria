@@ -1,10 +1,15 @@
 package com.aibees.service.maria.multipart.service.impl;
 
+import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.common.PathBuilder;
 import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.multipart.domain.dto.FileImageReq;
+import com.aibees.service.maria.multipart.domain.entity.FileImage;
 import com.aibees.service.maria.multipart.domain.entity.ImageFileEntity;
 import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
+import com.aibees.service.maria.multipart.domain.repo.FileImageRepo;
 import com.aibees.service.maria.multipart.domain.repo.ImageFileRepository;
 import com.aibees.service.maria.multipart.domain.vo.ImageFileVo;
 import com.aibees.service.maria.multipart.service.FileService;
@@ -19,6 +24,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -41,9 +47,10 @@ import static com.aibees.service.maria.common.CONSTANT.IMAGE_HOME;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ImageFileService implements FileService {
+public class FileImageService extends AccountServiceCommon implements FileService {
 
     private final ImageFileRepository imageRepository;
+    private final FileImageRepo fileImageRepo;
 
     public List<ImageFileVo> getImageListByCondition(ImageFileCondition condition) {
         if(condition.categoryAndYmCondChk()) {
@@ -59,6 +66,13 @@ public class ImageFileService implements FileService {
             return null;
         }
     }
+
+    public ResponseEntity<ResponseData> getDisplayImage(FileImageReq param) {
+        List<FileImage> imageList = fileImageRepo.selectDisplayImageList(param);
+
+        return successResponse(imageList);
+    }
+
 
     private List<ImageFileVo> getImageListByCategory(String category) {
         return imageRepository.findByCategory(category)
