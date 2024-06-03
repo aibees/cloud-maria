@@ -42,8 +42,8 @@ public class ImageController implements FileController {
         );
     }
 
-    @GetMapping("/display")
-    public ResponseEntity<ResponseData> getDisplayImageList(FileImageReq params) {
+    @PostMapping("/display")
+    public ResponseEntity<ResponseData> getDisplayImageList(@RequestBody FileImageReq params) {
 
         return fileImageService.getDisplayImage(params);
     }

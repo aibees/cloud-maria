@@ -14,6 +14,7 @@ public class FileImageReq {
     private String ym;
     private String ext;
     private LocalDateTime createAt;
+    private LocalDateTime shotTime;
     private String displayYn;
     private int searchSize;
 }

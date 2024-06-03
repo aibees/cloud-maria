@@ -4,6 +4,7 @@ import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.common.PathBuilder;
 import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.multipart.domain.dto.FileImageDisplayRes;
 import com.aibees.service.maria.multipart.domain.dto.FileImageReq;
 import com.aibees.service.maria.multipart.domain.entity.FileImage;
 import com.aibees.service.maria.multipart.domain.entity.ImageFileEntity;
@@ -68,7 +69,24 @@ public class FileImageService extends AccountServiceCommon implements FileServic
     }
 
     public ResponseEntity<ResponseData> getDisplayImage(FileImageReq param) {
-        List<FileImage> imageList = fileImageRepo.selectDisplayImageList(param);
+        if(param.getShotTime() == null) {
+            param.setShotTime(LocalDateTime.now());
+        }
+
+        List<FileImageDisplayRes> imageList = fileImageRepo.selectDisplayImageList(param)
+                .stream()
+                .map(entity ->
+                        FileImageDisplayRes.builder()
+                                .id(entity.getId())
+                                .ym(entity.getYm())
+                                .imageId(entity.getImageId())
+                                .width(entity.getWidth())
+                                .height(entity.getHeight())
+                                .shotTime(entity.getShotTime())
+                                .fullPath(entity.getFullPath())
+                                .displayYn(entity.getDisplayYn())
+                                .build()
+                ).collect(Collectors.toList());
 
         return successResponse(imageList);
     }

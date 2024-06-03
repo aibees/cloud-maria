@@ -16,6 +16,7 @@ public interface FileImageRepo extends JpaRepository<FileImage, Long>, FileImage
 
 interface FileImageRepoCustom {
     List<FileImage> selectDisplayImageList(FileImageReq param);
+    Long getFileImageMaxId();
 }
 
 @AllArgsConstructor
@@ -27,13 +28,21 @@ class FileImageRepoCustomImpl implements FileImageRepoCustom {
     @Override
     public List<FileImage> selectDisplayImageList(FileImageReq param) {
         return query.selectFrom(qFileImage)
-            .where(qFileImage.displayYn.eq("Y"), leastImageId(param.getId() + param.getSearchSize()))
+            .where(qFileImage.displayYn.eq("Y"),
+                   qFileImage.shotTime.lt(param.getShotTime()))
             .orderBy(qFileImage.shotTime.desc())
             .limit(param.getSearchSize())
             .fetch();
     }
 
-    private BooleanExpression leastImageId(Long imageId) {
-        return imageId == null ? null : qFileImage.id.gt(imageId);
+    @Override
+    public Long getFileImageMaxId() {
+        return query.select(qFileImage.id.max())
+                .from(qFileImage)
+                .fetchOne();
     }
+
+//    private BooleanExpression leastImageId(Long imageId) {
+//        return imageId == null ? null : qFileImage.id.lt(imageId);
+//    }
 }
