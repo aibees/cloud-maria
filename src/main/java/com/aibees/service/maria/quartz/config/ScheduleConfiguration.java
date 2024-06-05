@@ -33,20 +33,20 @@ public class ScheduleConfiguration {
                         .build()
         );
 
-        try {
-            for (JobVo job : jobList) {
-                JobDetail detail = createJobDetail(job);
-                Trigger trigger = createTrigger(job);
-
-                scheduler.scheduleJob(detail, trigger);
-            }
-
+//        try {
+//            for (JobVo job : jobList) {
+//                JobDetail detail = createJobDetail(job);
+//                Trigger trigger = createTrigger(job);
+//
+//                scheduler.scheduleJob(detail, trigger);
+//            }
+//
+////        } catch(ClassNotFoundException | SchedulerException cnf) {
+////            cnf.printStackTrace();
+////        }
 //        } catch(ClassNotFoundException | SchedulerException cnf) {
 //            cnf.printStackTrace();
 //        }
-        } catch(ClassNotFoundException | SchedulerException cnf) {
-            cnf.printStackTrace();
-        }
     }
 
     private JobDetail createJobDetail(JobVo job) throws ClassNotFoundException {

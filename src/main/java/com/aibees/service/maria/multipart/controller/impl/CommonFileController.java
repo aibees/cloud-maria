@@ -1,16 +1,11 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
-import com.aibees.service.maria.common.vo.ResponseData;
-import com.aibees.service.maria.multipart.domain.dto.CommonFileCondition;
-import com.aibees.service.maria.multipart.domain.dto.FileCondition;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.multipart.domain.vo.FileVo;
 import com.aibees.service.maria.multipart.service.impl.CommonFileService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 파일 조회, 파일 및 폴더 생성/삭제 등 공통처리모듈
@@ -18,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/file")
 @AllArgsConstructor
-public class CommonController {
+public class CommonFileController {
 
     private final CommonFileService commonFileService;
 

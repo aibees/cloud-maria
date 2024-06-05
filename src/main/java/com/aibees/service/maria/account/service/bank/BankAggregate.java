@@ -8,12 +8,11 @@ import com.aibees.service.maria.account.domain.dto.bank.BankStatementRes;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
-import com.aibees.service.maria.account.domain.repo.account.AccountSettingRepo;
-import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.account.service.account.SettingService;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.service.ServiceCommon;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Component
 @AllArgsConstructor
-public class BankAggregate extends AccountServiceCommon {
+public class BankAggregate extends ServiceCommon {
 
     private final BankService bankService;
     private final BankCloseService bankCloseService;

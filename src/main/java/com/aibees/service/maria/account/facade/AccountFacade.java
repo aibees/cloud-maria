@@ -5,7 +5,7 @@ import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
 import com.aibees.service.maria.account.service.bank.BankService;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

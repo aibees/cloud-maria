@@ -1,7 +1,6 @@
-package com.aibees.service.maria.common.vo;
+package com.aibees.service.maria.common.domain.entity;
 
 import lombok.*;
-import org.springframework.http.HttpStatus;
 
 @NoArgsConstructor
 @AllArgsConstructor

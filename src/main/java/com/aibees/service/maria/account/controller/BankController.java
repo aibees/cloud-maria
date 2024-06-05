@@ -5,7 +5,7 @@ import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.facade.AccountFacade;
 import com.aibees.service.maria.account.service.bank.BankAggregate;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

@@ -3,24 +3,23 @@ package com.aibees.service.maria.account.service.bank;
 import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.repo.bank.BankInfoRepo;
-import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.enums.TrxType;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.service.ServiceCommon;
 import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class BankInfoService extends AccountServiceCommon {
+public class BankInfoService extends ServiceCommon {
 
     private final BankInfoRepo bankInfoRepo;
 

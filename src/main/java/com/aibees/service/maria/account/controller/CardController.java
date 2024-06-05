@@ -1,6 +1,6 @@
 package com.aibees.service.maria.account.controller;
 
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -7,11 +7,11 @@ import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
 import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementTmpRepo;
-import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.service.ServiceCommon;
 import lombok.AllArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -28,7 +28,7 @@ import static com.aibees.service.maria.account.utils.constant.AccConstant.IMPORT
 
 @Service
 @AllArgsConstructor
-public class BankService extends AccountServiceCommon {
+public class BankService extends ServiceCommon {
 
     private final ImportFileRepo importFileRepo;
     private final BankStatementTmpRepo statementTmpRepo;

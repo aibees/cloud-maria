@@ -1,15 +1,15 @@
-package com.aibees.service.maria.account.service;
+package com.aibees.service.maria.common.service;
 
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public abstract class AccountServiceCommon {
+public abstract class ServiceCommon {
 
     public ResponseEntity<ResponseData> successResponse(Object data) {
         return ResponseEntity.ok(

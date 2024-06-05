@@ -1,12 +1,11 @@
 package com.aibees.service.maria.multipart.service.impl;
 
-import com.aibees.service.maria.account.service.AccountServiceCommon;
 import com.aibees.service.maria.common.PathBuilder;
 import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.service.ServiceCommon;
 import com.aibees.service.maria.multipart.domain.dto.FileImageDisplayRes;
 import com.aibees.service.maria.multipart.domain.dto.FileImageReq;
-import com.aibees.service.maria.multipart.domain.entity.FileImage;
 import com.aibees.service.maria.multipart.domain.entity.ImageFileEntity;
 import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
@@ -16,11 +15,8 @@ import com.aibees.service.maria.multipart.domain.vo.ImageFileVo;
 import com.aibees.service.maria.multipart.service.FileService;
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.imaging.jpeg.JpegProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
@@ -28,16 +24,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -48,7 +39,7 @@ import static com.aibees.service.maria.common.CONSTANT.IMAGE_HOME;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class FileImageService extends AccountServiceCommon implements FileService {
+public class FileImageService extends ServiceCommon implements FileService {
 
     private final ImageFileRepository imageRepository;
     private final FileImageRepo fileImageRepo;

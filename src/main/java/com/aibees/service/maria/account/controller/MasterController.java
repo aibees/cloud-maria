@@ -2,7 +2,7 @@ package com.aibees.service.maria.account.controller;
 
 import com.aibees.service.maria.account.domain.dto.account.AccountSettingReq;
 import com.aibees.service.maria.account.service.account.SettingService;
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

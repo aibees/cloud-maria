@@ -1,6 +1,6 @@
 package com.aibees.service.maria.multipart.controller.impl;
 
-import com.aibees.service.maria.common.vo.ResponseData;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.multipart.controller.FileController;
 import com.aibees.service.maria.multipart.domain.dto.FileImageReq;
 import com.aibees.service.maria.multipart.domain.dto.ImageFileCondition;
