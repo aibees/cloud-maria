@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +32,10 @@ public class CommonService extends ServiceCommon {
     @Transactional
     public ResponseEntity<ResponseData> getTodayCounter(CounterDto param) {
 
-        String toDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        ZoneId seoulZone = ZoneId.of("Asia/Seoul");
+        ZonedDateTime seoulTime = ZonedDateTime.of(LocalDateTime.now(), seoulZone);
+
+        String toDate = seoulTime.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
         try {
             // division 별 일별 cnt 조회
@@ -41,7 +46,7 @@ public class CommonService extends ServiceCommon {
                     .build()
             );
 
-            Long addedCnt = null;
+            Long addedCnt;
             CommonCounter daily;
             System.out.println("isPresent : " + dailyCntOpt.isPresent());
             if(dailyCntOpt.isPresent()) { // 존재한다면
