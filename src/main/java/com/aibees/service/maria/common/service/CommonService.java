@@ -29,12 +29,10 @@ public class CommonService extends ServiceCommon {
 
     private final CommonHistoryRepo historyRepo;
     private final CommonCounterRepo counterRepo;
-    private final String systemEnv;
 
-    public CommonService(CommonHistoryRepo hisRepo, CommonCounterRepo counterRepo, @Value("${spring.config.activate.on-profile}") String env) {
+    public CommonService(CommonHistoryRepo hisRepo, CommonCounterRepo counterRepo) {
         this.historyRepo = hisRepo;
         this.counterRepo = counterRepo;
-        this.systemEnv = env;
     }
 
     @Transactional
@@ -75,9 +73,9 @@ public class CommonService extends ServiceCommon {
             Long totalCnt = counterRepo.findAllByDivision(param.getDivision())
                     .stream().mapToLong(CommonCounter::getCnt).sum() + 1L;
 
-            if(!StringUtils.isEquals(this.systemEnv, "local")) {
-                saveCounterInfo(daily, param);
-            }
+//            if(!StringUtils.isEquals(this.systemEnv, "local")) {
+//                saveCounterInfo(daily, param);
+//            }
 
             Map<String, Long> result = new HashMap<>();
             result.put("todayCnt", addedCnt);
