@@ -5,17 +5,31 @@ import lombok.Data;
 import lombok.ToString;
 import org.springframework.core.io.Resource;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Data
 @ToString
 @Builder
 public class ImageFileVo {
-    private Resource image;         /* image resource */
-    private Long id;                /* DB seq Id */
-    private String category;        /* 이미지 카테고리 */
-    private String ym;              /* 이미지 년월(카테고리 하위) */
-    private Long number;            /* 동년월 내 순번 */
-    private String filename;        /* 파일명 */
-    private LocalDateTime createAt; /* 저장일자 */
+    private long id;
+    private String ym; // exif(shotTime)
+    private String imageId;
+    private String filename; // common
+    private Long width; // jpeg
+    private Long height; // jpeg
+    private String displayYn; // common
+    private String makeModel; // exit
+    private String ext; // common
+    private String software; // exif
+    private LocalDateTime shotTime; // exif
+    private LocalDateTime createTime; // common
+    private LocalDateTime updateTime; // common
+    private String fullPath; // common
+    private String exposureTime;
+    private String fNumber;
+    private String isoRating;
+    private String focalLen;
+    private String lensModel;
+    private String infoLock;
 }

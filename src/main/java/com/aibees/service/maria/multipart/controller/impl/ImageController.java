@@ -56,15 +56,10 @@ public class ImageController implements FileController {
     @GetMapping(value="/{category}/{ym}/{number}")
     public ResponseEntity<Resource> getImageResource(ImageFileCondition params) {
 
-        try {
-            return ResponseEntity
-                   .ok()
-                   .contentType(MediaType.parseMediaType(MediaType.IMAGE_PNG_VALUE))
-                   .body(fileImageService.getResource(params));
-        } catch(IOException e) {
-            log.info(e.getMessage());
-            return ResponseEntity.badRequest().body(null);
-        }
+        return ResponseEntity
+               .ok()
+               .contentType(MediaType.parseMediaType(MediaType.IMAGE_PNG_VALUE))
+               .body(null);
     }
 
     public ResponseEntity<Void> uploadResource(@RequestParam MultipartFile file, @RequestParam String data) {

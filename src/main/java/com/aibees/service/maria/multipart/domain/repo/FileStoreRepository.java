@@ -1,7 +1,6 @@
 package com.aibees.service.maria.multipart.domain.repo;
 
 import com.aibees.service.maria.multipart.domain.entity.CommonFileEntity;
-import com.aibees.service.maria.multipart.domain.entity.ImageFileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

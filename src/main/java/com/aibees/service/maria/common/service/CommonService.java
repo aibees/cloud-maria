@@ -1,5 +1,6 @@
 package com.aibees.service.maria.common.service;
 
+import com.aibees.service.maria.common.StringUtils;
 import com.aibees.service.maria.common.domain.dto.CounterDto;
 import com.aibees.service.maria.common.domain.entity.CommonCounter;
 import com.aibees.service.maria.common.domain.entity.CommonHistory;
@@ -8,6 +9,7 @@ import com.aibees.service.maria.common.domain.entity.pk.CommonCounterPk;
 import com.aibees.service.maria.common.domain.repo.CommonCounterRepo;
 import com.aibees.service.maria.common.domain.repo.CommonHistoryRepo;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,11 +25,17 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class CommonService extends ServiceCommon {
 
     private final CommonHistoryRepo historyRepo;
     private final CommonCounterRepo counterRepo;
+    private final String systemEnv;
+
+    public CommonService(CommonHistoryRepo hisRepo, CommonCounterRepo counterRepo, @Value("${spring.config.activate.on-profile}") String env) {
+        this.historyRepo = hisRepo;
+        this.counterRepo = counterRepo;
+        this.systemEnv = env;
+    }
 
     @Transactional
     public ResponseEntity<ResponseData> getTodayCounter(CounterDto param) {
@@ -67,7 +75,9 @@ public class CommonService extends ServiceCommon {
             Long totalCnt = counterRepo.findAllByDivision(param.getDivision())
                     .stream().mapToLong(CommonCounter::getCnt).sum() + 1L;
 
-            saveCounterInfo(daily, param);
+            if(!StringUtils.isEquals(this.systemEnv, "local")) {
+                saveCounterInfo(daily, param);
+            }
 
             Map<String, Long> result = new HashMap<>();
             result.put("todayCnt", addedCnt);
