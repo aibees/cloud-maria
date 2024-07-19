@@ -78,4 +78,9 @@ public class ImageController implements FileController {
 
         return "OK";
     }
+
+    @GetMapping("/sns/{id}")
+    public ResponseEntity<ResponseData> createImageForSNS(@PathVariable("id") String id) {
+        return fileImageService.getSNSImage(Long.parseLong(id));
+    }
 }
