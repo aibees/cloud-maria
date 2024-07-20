@@ -117,7 +117,7 @@ public class FileImageService extends ServiceCommon implements FileService {
         String iso = "ISO " + image.getIsoRating();
         String focalLen = image.getFocalLen() + "mm";
 
-        String exif = String.join(" | " + fValue, sSpeed, iso);
+        String exif = String.join(" | ", fValue, sSpeed, iso);
         String equip = image.getMakeModel() + " + " + focalLen + "(" + image.getLensModel() + ")";
 
         String rootDir = "/app/maria/tmp/";
