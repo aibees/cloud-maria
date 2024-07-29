@@ -69,6 +69,7 @@ public class FileImageService extends ServiceCommon implements FileService {
                                 .height(entity.getHeight())
                                 .fullPath(entity.getFullPath())
                                 .displayYn(entity.getDisplayYn())
+                                .createTime(entity.getCreateTime())
                                 .build()
                 ).collect(Collectors.toList());
 

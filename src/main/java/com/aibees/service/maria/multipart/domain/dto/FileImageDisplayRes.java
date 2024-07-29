@@ -20,4 +20,5 @@ public class FileImageDisplayRes {
     private LocalDateTime shotTime; // exif
     private String fullPath; // common
     private String displayYn; // common
+    private LocalDateTime createTime; // common
 }
