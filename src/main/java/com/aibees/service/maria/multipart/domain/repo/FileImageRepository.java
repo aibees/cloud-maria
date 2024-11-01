@@ -47,9 +47,9 @@ class FileImageRepoCustomImpl implements FileImageRepoCustom {
     private BooleanBuilder createWhereClause(FileImageReq param) {
         BooleanBuilder whereClause = new BooleanBuilder();
 
-        if(param.getCreateAt() != null) {
+        whereClause.and(qFileImage.displayYn.eq(("Y")));
+        if(param.getImageId() != null) {
             whereClause.and(qFileImage.imageId.lt(param.getImageId()));// TABLE.createTime < PARAM.createTime
-            whereClause.and(qFileImage.displayYn.eq(("Y")));
         }
 
         return whereClause;
