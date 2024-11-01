@@ -32,7 +32,7 @@ class FileImageRepoCustomImpl implements FileImageRepoCustom {
     public List<FileImage> selectDisplayImageList(FileImageReq param) {
         return query.selectFrom(qFileImage)
             .where(createWhereClause(param))
-            .orderBy(qFileImage.createTime.desc())
+            .orderBy(qFileImage.imageId.desc())
             .limit(param.getSearchSize())
             .fetch();
     }
@@ -48,7 +48,7 @@ class FileImageRepoCustomImpl implements FileImageRepoCustom {
         BooleanBuilder whereClause = new BooleanBuilder();
 
         if(param.getCreateAt() != null) {
-            whereClause.and(qFileImage.createTime.lt(param.getCreateAt()));
+            whereClause.and(qFileImage.imageId.lt(param.getImageId()));// TABLE.createTime < PARAM.createTime
             whereClause.and(qFileImage.displayYn.eq(("Y")));
         }
 

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 public class FileImageReq {
     private Long id;
+    private String imageId;
     private String ym;
     private String ext;
     private LocalDateTime createAt;
