@@ -5,9 +5,10 @@ import com.aibees.service.maria.multipart.domain.dto.PageableDto;
 import com.aibees.service.maria.multipart.service.impl.MgmtService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -20,4 +21,5 @@ public class MgmtController {
     public ResponseEntity<ResponseData> getFileMgmtList(PageableDto page) {
         return mgmtService.getFileImageMgmt(page);
     }
+
 }

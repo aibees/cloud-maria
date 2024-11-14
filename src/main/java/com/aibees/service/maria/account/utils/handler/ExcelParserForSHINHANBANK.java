@@ -2,7 +2,7 @@ package com.aibees.service.maria.account.utils.handler;
 
 import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;

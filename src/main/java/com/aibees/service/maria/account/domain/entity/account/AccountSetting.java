@@ -1,13 +1,12 @@
 package com.aibees.service.maria.account.domain.entity.account;
 
-import com.aibees.service.maria.account.domain.entity.account.pk.AccountImportFileId;
+import javax.persistence.*;
+
 import com.aibees.service.maria.account.domain.entity.account.pk.AccountSettingId;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 
 @NoArgsConstructor
 @AllArgsConstructor

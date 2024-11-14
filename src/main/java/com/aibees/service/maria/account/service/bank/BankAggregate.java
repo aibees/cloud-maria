@@ -8,12 +8,10 @@ import com.aibees.service.maria.account.domain.dto.bank.BankStatementRes;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
-import com.aibees.service.maria.account.service.account.SettingService;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.service.ServiceCommon;
-import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -30,7 +28,6 @@ public class BankAggregate extends ServiceCommon {
     private final BankCloseService bankCloseService;
     private final BankInfoService bankInfoService;
 
-    private final SettingService settingService;
 
     public ResponseEntity<ResponseData> getBankStatementList(BankStatementReq param) {
         try {
@@ -39,10 +36,10 @@ public class BankAggregate extends ServiceCommon {
             settingParam.setSubCategory("COMBO");
 
             settingParam.setHCode("USAGE");
-            List<AccountSettingRes> usageSettings = settingService.getSettingListByCond(settingParam);
+            List<AccountSettingRes> usageSettings = null;// settingService.getSettingListByCond(settingParam);
 
             settingParam.setHCode("ENTRY");
-            List<AccountSettingRes> entrySettings = settingService.getSettingListByCond(settingParam);
+            List<AccountSettingRes> entrySettings = null;// settingService.getSettingListByCond(settingParam);
 
             List<BankStatement> statements = bankService.getBankStatementList(param);
 
@@ -124,13 +121,13 @@ public class BankAggregate extends ServiceCommon {
             settingParam.setMainCategory("ACCOUNT");
             settingParam.setSubCategory("COMBO");
             settingParam.setHCode("BANK");
-            Map<String, String> bankSetting = settingService.getSettingListByCond(settingParam)
-                    .stream()
-                    .collect(Collectors.groupingBy(AccountSettingRes::getDetailCode, Collectors.mapping(AccountSettingRes::getName, Collectors.joining())));
+//            Map<String, String> bankSetting = settingService.getSettingListByCond(settingParam)
+//                    .stream()
+//                    .collect(Collectors.groupingBy(AccountSettingRes::getDetailCode, Collectors.mapping(AccountSettingRes::getName, Collectors.joining())));
 
-            List<Map<String, String>> result = bankSelectCd.stream()
-                    .map(code -> ImmutableMap.of("code", code, "name", bankSetting.get(code)
-                    )).collect(Collectors.toList());
+            List<Map<String, String>> result = null; //bankSelectCd.stream()
+//                    .map(code -> ImmutableMap.of("code", code, "name", bankSetting.get(code)
+//                    )).collect(Collectors.toList());
 
             return successResponse(result);
         } catch(Exception e) {

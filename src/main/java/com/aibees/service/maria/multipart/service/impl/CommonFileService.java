@@ -1,7 +1,7 @@
 package com.aibees.service.maria.multipart.service.impl;
 
-import com.aibees.service.maria.common.MapUtils;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.MapUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.multipart.domain.entity.CommonFileEntity;
 import com.aibees.service.maria.multipart.domain.repo.FileStoreRepository;

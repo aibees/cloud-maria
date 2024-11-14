@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BankCloseRepo extends JpaRepository<BankCloseStatement, BankCloseId> {
 
-
 }

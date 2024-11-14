@@ -1,8 +1,8 @@
 package com.aibees.service.maria.account.utils.handler;
 
-import com.aibees.service.maria.account.domain.entity.card.CardInfoStatement;
+import com.aibees.service.maria.account.domain.entity.card.AccountCardInfo;
 import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
-import com.aibees.service.maria.common.DateUtils;
+import com.aibees.service.maria.common.utils.DateUtils;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class TextParserForHANACARD implements TextParser {
         Map<String, Object> cardInfoParam = new HashMap<>();
         cardInfoParam.put("company", texts[0].substring(0, 2));
         cardInfoParam.put("cardNo", texts[0].substring(2, 6).replace("*", "%"));
-        CardInfoStatement cardInfo = null; //infoMapper.selectCardInfoByCondition(cardInfoParam);
+        AccountCardInfo cardInfo = null; //infoMapper.selectCardInfoByCondition(cardInfoParam);
 
         // 2. amount
         String amount = texts[2].replace(",", "").replace("원", "");

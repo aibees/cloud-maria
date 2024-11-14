@@ -1,26 +1,25 @@
 package com.aibees.service.maria.account.facade;
 
-import com.aibees.service.maria.account.domain.dto.account.ImportFileRes;
-import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
-import com.aibees.service.maria.account.service.bank.BankService;
-import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.common.StringUtils;
-import com.aibees.service.maria.common.domain.entity.ResponseData;
-import lombok.AllArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.aibees.service.maria.account.domain.dto.account.ImportFileRes;
+import com.aibees.service.maria.account.service.bank.BankService;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.utils.StringUtils;
+import com.aibees.service.maria.common.domain.entity.ResponseData;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
 public class AccountFacade {
 
     private final BankService bankService;
-    private final ImportFileRepo importFileRepo;
 
     public ResponseEntity<ResponseData> excelParse(String type, MultipartFile file) {
 
@@ -37,15 +36,16 @@ public class AccountFacade {
      */
     public ResponseEntity<ResponseData> getImportFileNameList(String type) {
         try {
-            List<ImportFileRes> fileNameList = importFileRepo.findAll()
-                .stream()
-                .filter(file -> StringUtils.isEquals(file.getFileType(), type))
-                .map(file -> ImportFileRes
-                    .builder()
-                    .fileId(file.getFileId())
-                    .fileName(file.getFileName())
-                    .build())
-                .collect(Collectors.toList());
+            List<ImportFileRes> fileNameList = null;
+//                importFileRepo.findAll()
+//                .stream()
+//                .filter(file -> StringUtils.isEquals(file.getFileType(), type))
+//                .map(file -> ImportFileRes
+//                    .builder()
+//                    .fileId(file.getFileId())
+//                    .fileName(file.getFileName())
+//                    .build())
+//                .collect(Collectors.toList());
 
             return ResponseEntity.ok(
                 ResponseData.builder()

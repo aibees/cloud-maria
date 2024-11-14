@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.aibees.service.maria.common.HttpUtils;
+import com.aibees.service.maria.common.utils.HttpUtils;
 
 
 @RestController

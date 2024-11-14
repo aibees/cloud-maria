@@ -1,6 +1,6 @@
 package com.aibees.service.maria.account.domain.entity.card;
 
-import com.aibees.service.maria.account.domain.entity.card.pk.CardInfoStatementId;
+import com.aibees.service.maria.account.domain.entity.card.pk.AccountCardInfoPk;
 import lombok.*;
 
 import javax.persistence.*;
@@ -11,12 +11,12 @@ import javax.persistence.*;
 @Entity
 @Builder
 @Table(name="account_card_info")
-@IdClass(CardInfoStatementId.class)
-public class CardInfoStatement {
+@IdClass(AccountCardInfoPk.class)
+public class AccountCardInfo {
     @Id
     private String cardNo;
     @Id
-    private String payway;
+    private String cardComp;
     private String cardName;
     private String bankCd;
     private String deadlineDate;
@@ -26,5 +26,5 @@ public class CardInfoStatement {
     private String useYn;
     private String company;
     private Long limitAmt;
-    private String selectedMain;
+    private String exposeMain;
 }

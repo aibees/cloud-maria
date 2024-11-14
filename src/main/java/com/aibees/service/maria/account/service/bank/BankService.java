@@ -4,12 +4,11 @@ import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.domain.entity.account.AccountImportFile;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
-import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementTmpRepo;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,7 @@ import static com.aibees.service.maria.account.utils.constant.AccConstant.IMPORT
 @AllArgsConstructor
 public class BankService extends ServiceCommon {
 
-    private final ImportFileRepo importFileRepo;
+//    private final ImportFileRepo importFileRepo;
     private final BankStatementTmpRepo statementTmpRepo;
     private final BankStatementRepo statementRepo;
 
@@ -95,7 +94,7 @@ public class BankService extends ServiceCommon {
                 .fileType(IMPORT_BANK)
                 .fileName(originName)
                 .build();
-        importFileRepo.save(importFile);
+//        importFileRepo.save(importFile);
     }
 
     private void checkParams(BankStatementReq stateParam) {

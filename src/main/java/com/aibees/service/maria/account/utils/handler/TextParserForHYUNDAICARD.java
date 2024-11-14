@@ -1,9 +1,9 @@
 package com.aibees.service.maria.account.utils.handler;
 
-import com.aibees.service.maria.account.domain.entity.card.CardInfoStatement;
+import com.aibees.service.maria.account.domain.entity.card.AccountCardInfo;
 import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.common.DateUtils;
+import com.aibees.service.maria.common.utils.DateUtils;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ public class TextParserForHYUNDAICARD implements TextParser {
         Map<String, Object> cardInfoParam = new HashMap<>();
         cardInfoParam.put("cardName", splitOfCard[1]);
         cardInfoParam.put("company", splitOfCard[0].substring(0, 2));
-        CardInfoStatement cardInfo = null; // infoMapper.selectCardInfoByCondition(cardInfoParam);
+        AccountCardInfo cardInfo = null; // infoMapper.selectCardInfoByCondition(cardInfoParam);
 
         if(Objects.isNull(cardInfo)) {
             return null;

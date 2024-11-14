@@ -1,4 +1,4 @@
-package com.aibees.service.maria.common;
+package com.aibees.service.maria.common.utils;
 
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.google.common.base.Strings;

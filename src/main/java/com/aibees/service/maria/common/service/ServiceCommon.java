@@ -1,7 +1,7 @@
 package com.aibees.service.maria.common.service;
 
 import com.aibees.service.maria.account.utils.constant.AccConstant;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

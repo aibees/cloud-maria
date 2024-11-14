@@ -3,7 +3,7 @@ package com.aibees.service.maria.account.domain.repo.bank;
 import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.entity.bank.QBankInfo;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AllArgsConstructor;

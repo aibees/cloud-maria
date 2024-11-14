@@ -5,7 +5,7 @@ import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.repo.bank.BankInfoRepo;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.enums.TrxType;
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import com.google.common.collect.ImmutableMap;

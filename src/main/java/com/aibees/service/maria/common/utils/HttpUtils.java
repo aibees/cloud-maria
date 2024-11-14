@@ -1,4 +1,4 @@
-package com.aibees.service.maria.common;
+package com.aibees.service.maria.common.utils;
 
 
 import com.aibees.service.maria.multipart.domain.vo.ResourceVo;

@@ -1,5 +1,6 @@
-package com.aibees.service.maria.common;
+package com.aibees.service.maria.common.utils;
 
+import com.aibees.service.maria.common.utils.DateUtils;
 import com.google.common.base.Strings;
 
 import java.security.MessageDigest;
@@ -9,6 +10,8 @@ import java.util.Base64;
 import java.util.Random;
 
 public class StringUtils {
+
+    public static String EMPTY = "";
 
     public static boolean isNull(String str) {
         return (str == null || str.isEmpty());
@@ -32,6 +35,12 @@ public class StringUtils {
         } else {
             return s1;
         }
+    }
+
+    public static String lpad(String str, int len, String pad) {
+        String newStr = "";
+        for (int i = 0; i < len; i++) { newStr = newStr.concat(pad); }
+        return newStr.concat(str);
     }
 
     public static String UuidNumberFormat(int num) {

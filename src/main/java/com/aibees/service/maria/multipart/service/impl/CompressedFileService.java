@@ -1,6 +1,6 @@
 package com.aibees.service.maria.multipart.service.impl;
 
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.multipart.domain.dto.FileCondition;
 import com.aibees.service.maria.multipart.domain.repo.MetadataRepository;
 import com.aibees.service.maria.multipart.service.FileService;

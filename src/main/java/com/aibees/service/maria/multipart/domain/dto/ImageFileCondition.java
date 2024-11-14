@@ -1,6 +1,6 @@
 package com.aibees.service.maria.multipart.domain.dto;
 
-import com.aibees.service.maria.common.StringUtils;
+import com.aibees.service.maria.common.utils.StringUtils;
 import lombok.*;
 
 @NoArgsConstructor
