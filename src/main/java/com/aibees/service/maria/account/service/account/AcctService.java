@@ -7,6 +7,7 @@ import com.aibees.service.maria.account.domain.mapper.AccountAcctMasterMapper;
 import com.aibees.service.maria.account.domain.repo.account.AcctMasterRepo;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import lombok.AllArgsConstructor;
 
@@ -24,9 +25,9 @@ public class AcctService extends ServiceCommon {
     private final AcctMasterRepo acctRepo;
     private final AccountAcctMasterMapper acctMapper;
 
-    public ResponseEntity<ResponseData> searchAcctListForPopup(AcctMasterReq param) {
+    public List<AcctMasterRes> searchAcctListForPopup(AcctMasterReq param) {
         try {
-            List<AcctMasterRes> result = acctRepo.findAllByAcctCdContainingOrAcctNmContaining(param.getSearchTxt(), param.getSearchTxt())
+            return acctRepo.findAllByAcctCdContainingOrAcctNmContaining(param.getSearchTxt(), param.getSearchTxt())
                 .stream()
                 .filter(data ->
                     StringUtils.equals(data.getFinalFlag(), AccConstant.YES)
@@ -34,10 +35,8 @@ public class AcctService extends ServiceCommon {
                 )
                 .map(acctMapper::toResp)
                 .collect(Collectors.toList());
-
-            return successResponse(result);
         } catch(Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 }

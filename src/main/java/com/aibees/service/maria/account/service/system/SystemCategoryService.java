@@ -5,6 +5,7 @@ import com.aibees.service.maria.account.domain.dto.system.CategoryRes;
 import com.aibees.service.maria.account.domain.mapper.MaCategoryMapper;
 import com.aibees.service.maria.account.domain.repo.system.SystemCategoryRepo;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import lombok.AllArgsConstructor;
 
@@ -21,17 +22,14 @@ public class SystemCategoryService extends ServiceCommon {
     private final SystemCategoryRepo categoryRepo;
     private final MaCategoryMapper categoryMapper;
 
-    public ResponseEntity<ResponseData> getCategoryBySourceCd(CategoryReq param) {
+    public List<CategoryRes> getCategoryBySourceCd(CategoryReq param) {
         try {
-            List<CategoryRes> result = categoryRepo.findAllBySourceCd(param.getSourceCd())
+            return categoryRepo.findAllBySourceCd(param.getSourceCd())
                 .stream()
                 .map(categoryMapper::toResp)
                 .collect(Collectors.toList());
-
-
-            return successResponse(result);
         } catch (Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 }

@@ -21,13 +21,13 @@ public class SystemPresetService extends ServiceCommon {
     private final SystemPresetRepo presetRepo;
     private final AccountPresetMapper presetMapper;
 
-    public ResponseEntity<ResponseData> getPresetMasterList(PresetMasterReq param) {
+    public List<PresetMasterRes> getPresetMasterList(PresetMasterReq param) {
 
         List<PresetMasterRes> resList = presetRepo.getPresetMasterByCondition(param)
             .stream()
             .map(presetMapper::toMasterResp)
             .collect(Collectors.toList());
 
-        return successResponse(resList);
+        return resList;
     }
 }

@@ -1,5 +1,6 @@
 package com.aibees.service.maria.common.advice;
 
+import com.aibees.service.maria.common.domain.entity.ErrorEntity;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 
 import org.springframework.core.MethodParameter;
@@ -10,7 +11,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-//@RestControllerAdvice
+@RestControllerAdvice
 public class CommonControllerAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -21,10 +22,20 @@ public class CommonControllerAdvice implements ResponseBodyAdvice<Object> {
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {
-        ResponseData.builder()
-            .data(body)
-            .message("success")
-            .build();
-        return null;
+
+        System.out.println("instance : " + body.getClass().getSimpleName());
+        System.out.println(body instanceof ErrorEntity);
+        if (body instanceof ErrorEntity) {
+            return fail((ErrorEntity) body);
+        }
+        return success(body);
+    }
+
+    private <T> ResponseData<T> success(T response) {
+        return new ResponseData<> (true, response, null);
+    }
+
+    private ResponseData<?> fail(ErrorEntity e) {
+        return new ResponseData<>(false, null, e);
     }
 }

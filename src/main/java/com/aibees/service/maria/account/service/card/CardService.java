@@ -2,11 +2,14 @@ package com.aibees.service.maria.account.service.card;
 
 import com.aibees.service.maria.account.domain.dto.card.CardInfoReq;
 import com.aibees.service.maria.account.domain.dto.card.CardInfoRes;
+import com.aibees.service.maria.account.domain.dto.card.CardStatementReq;
+import com.aibees.service.maria.account.domain.dto.card.CardStatementRes;
 import com.aibees.service.maria.account.domain.entity.card.AccountCardInfo;
 import com.aibees.service.maria.account.domain.entity.card.pk.AccountCardInfoPk;
 import com.aibees.service.maria.account.domain.mapper.AccountCardInfoMapper;
 import com.aibees.service.maria.account.domain.repo.card.AccountCardInfoRepo;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import com.aibees.service.maria.common.utils.StringUtils;
 import lombok.AllArgsConstructor;
@@ -26,7 +29,13 @@ public class CardService extends ServiceCommon {
     private final AccountCardInfoRepo cardInfoRepo;
     private final AccountCardInfoMapper cardInfoMapper;
 
-    public ResponseEntity<ResponseData> getCardInfoList(CardInfoReq param) {
+    public List<CardStatementRes> getCardStatementList(CardStatementReq param) {
+        List<CardStatementRes> result = null;
+
+        return result;
+    }
+
+    public List<CardInfoRes> getCardInfoList(CardInfoReq param) {
         try {
             List<CardInfoRes> cardInfoList = cardInfoRepo.cardInfoList(param)
                 .stream()
@@ -41,15 +50,14 @@ public class CardService extends ServiceCommon {
                 .collect(Collectors.toList());
 
 
-            return successResponse(cardInfoList);
+            return cardInfoList;
         } catch(Exception e) {
-            e.printStackTrace();
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 
     @Transactional
-    public ResponseEntity<ResponseData> saveCardInfo(List<CardInfoReq> saveParam) {
+    public void saveCardInfo(List<CardInfoReq> saveParam) {
         try {
             for (CardInfoReq target : saveParam) {
                 if (StringUtils.isEquals("INSERT", target.getTrxType())) {
@@ -61,10 +69,8 @@ public class CardService extends ServiceCommon {
                 }
             }
         } catch (Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
-
-        return successResponse(ResponseData.builder().data("").message("SUCCESS").build());
     }
 
     private void insertCardInfo(CardInfoReq data) {

@@ -37,9 +37,9 @@ public class StringUtils {
         }
     }
 
-    public static String lpad(String str, int len, String pad) {
+    public static String lpad(String str, int maxLen, String pad) {
         String newStr = "";
-        for (int i = 0; i < len; i++) { newStr = newStr.concat(pad); }
+        for (int i = 0; i < maxLen-str.length(); i++) { newStr = newStr.concat(pad); }
         return newStr.concat(str);
     }
 

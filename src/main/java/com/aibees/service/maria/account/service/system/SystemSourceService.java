@@ -4,6 +4,7 @@ import com.aibees.service.maria.account.domain.dto.system.SourceRes;
 import com.aibees.service.maria.account.domain.mapper.MaSourceMapper;
 import com.aibees.service.maria.account.domain.repo.system.SystemSourceRepo;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import lombok.AllArgsConstructor;
 
@@ -20,16 +21,16 @@ public class SystemSourceService extends ServiceCommon {
     private final SystemSourceRepo sourceRepo;
     private final MaSourceMapper sourceMapper;
 
-    public ResponseEntity<ResponseData> getServiceCodeList() {
+    public List<SourceRes> getServiceCodeList() {
         try {
             List<SourceRes> result = sourceRepo.findAll()
                 .stream()
                 .map(sourceMapper::toResp)
                 .collect(Collectors.toList());
 
-            return successResponse(result);
+            return result;
         } catch (Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 }

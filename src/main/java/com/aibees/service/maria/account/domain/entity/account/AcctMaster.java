@@ -23,4 +23,5 @@ public class AcctMaster {
     private String enabledFlag;
     private String finalFlag;
     private String acctType;
+    private String additionalFlag;
 }

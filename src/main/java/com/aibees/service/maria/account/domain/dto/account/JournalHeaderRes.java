@@ -23,5 +23,6 @@ public class JournalHeaderRes {
     private String status;
     private String trxType;
     private LocalDateTime createDate;
+    private String internalYn;
     List<JournalLinesRes> jeLineList;
 }

@@ -15,7 +15,6 @@ public abstract class ServiceCommon {
         return ResponseEntity.ok(
                 ResponseData.builder()
                         .data(data)
-                        .message(AccConstant.CM_SUCCESS)
                         .build()
         );
     }
@@ -23,7 +22,6 @@ public abstract class ServiceCommon {
     public ResponseEntity<ResponseData> failedResponse(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                 ResponseData.builder()
-                        .message(AccConstant.CM_FAILED)
                         .data(e.getMessage())
                         .build()
         );
