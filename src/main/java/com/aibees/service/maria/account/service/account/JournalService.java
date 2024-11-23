@@ -12,6 +12,7 @@ import com.aibees.service.maria.account.domain.repo.account.JournalHeaderRepo;
 import com.aibees.service.maria.account.domain.repo.account.JournalHeaderSeqRepo;
 import com.aibees.service.maria.account.domain.repo.account.JournalLinesRepo;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import com.aibees.service.maria.common.utils.StringUtils;
 import lombok.AllArgsConstructor;
@@ -44,7 +45,7 @@ public class JournalService extends ServiceCommon {
     /**
      * 전표 조회
      */
-    public ResponseEntity<ResponseData> getJournalHeaderById(JournalHeaderReq param) {
+    public JournalHeaderRes getJournalHeaderById(JournalHeaderReq param) {
         try {
             String headerNo = param.getJeHeaderNo();
 
@@ -62,9 +63,9 @@ public class JournalService extends ServiceCommon {
 
             result.setJeLineList(lineList);
 
-            return successResponse(result);
+            return result;
         } catch (Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 
@@ -72,25 +73,25 @@ public class JournalService extends ServiceCommon {
      * 전표 저장
      */
     @Transactional(propagation = Propagation.REQUIRED)
-    public ResponseEntity<ResponseData> saveJournal(JournalHeaderReq headerParam) {
+    public String saveJournal(JournalHeaderReq headerParam) {
         try {
+            String headerNo = "";
 
             if (StringUtils.isEquals(headerParam.getTrxType(), "INSERT")) {
                 createHeaderNo(headerParam);
-                insertNewJournal(headerParam);
+                headerNo = insertNewJournal(headerParam);
             }
 
-            return successResponse("success");
+            return headerNo;
         } catch (Exception e) {
-            e.printStackTrace();
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 
     /**
      * transaction - INSERT
      */
-    private void insertNewJournal(JournalHeaderReq headerParam) {
+    private String insertNewJournal(JournalHeaderReq headerParam) {
         String jeDateStr = headerParam.getJeDate().replace("-", "");
 
         JournalHeader newHeader = JournalHeader.builder()
@@ -103,6 +104,7 @@ public class JournalService extends ServiceCommon {
             .remark(headerParam.getRemark())
             .status("CONFIRM")
             .createDate(LocalDateTime.now())
+            .internalYn(headerParam.getInternalYn())
             .build();
 
         headerRepo.save(newHeader);
@@ -127,6 +129,8 @@ public class JournalService extends ServiceCommon {
 
             idx++;
         }
+
+        return headerParam.getJeHeaderNo();
     }
 
     /**
@@ -134,9 +138,9 @@ public class JournalService extends ServiceCommon {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public void createHeaderNo(JournalHeaderReq header) {
-        String ym = LocalDate.now().format(ymFormat);
+        String ym = header.getJeDate().replace("-", "").substring(0, 6);
         String sourceCd = header.getSourceCd();
-
+        System.out.println("ym : " + ym + " / sourceCd : " + sourceCd);
         int currSeq = -1;
 
         try {
@@ -145,7 +149,7 @@ public class JournalService extends ServiceCommon {
         } catch (NullPointerException e) {
             currSeq = 1;
         }
-        String numbering = StringUtils.lpad(Integer.toString(currSeq), 5, "0");
+        String numbering = StringUtils.lpad(Integer.toString(currSeq), 6, "0");
 
         String headerNo = String.join("-", ym, numbering, sourceCd); // 202411-00001-EX
         header.setJeHeaderNo(headerNo);

@@ -1,10 +1,13 @@
 package com.aibees.service.maria.account.service.bank;
 
 import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
+import com.aibees.service.maria.account.domain.dto.bank.BankInfoRes;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
+import com.aibees.service.maria.account.domain.mapper.BankInfoMapper;
 import com.aibees.service.maria.account.domain.repo.bank.BankInfoRepo;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.enums.TrxType;
+import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.service.ServiceCommon;
@@ -22,28 +25,28 @@ import java.util.stream.Collectors;
 public class BankInfoService extends ServiceCommon {
 
     private final BankInfoRepo bankInfoRepo;
+    private final BankInfoMapper bankInfoMapper;
 
-    public ResponseEntity<ResponseData> getBankInfoList(BankInfoReq param) {
+    public List<BankInfoRes> getBankInfoList(BankInfoReq param) {
         // TODO : validation
         try {
+            return bankInfoRepo.getBankInfoListByCondition(param)
+                .stream()
+                .peek(bank -> {
+                    Long limitAmt = bank.getLimitAmt();
+                    bank.setLimitAmt(limitAmt == null ? -1L : limitAmt);
+                    bank.setUseYn(StringUtils.isNull(bank.getUseYn()) ? AccConstant.No : bank.getUseYn());
+                })
+                .map(bankInfoMapper::toResp)
+                .collect(Collectors.toList());
 
-            List<BankInfo> bankInfos = bankInfoRepo.getBankInfoListByCondition(param)
-                    .stream()
-                    .peek(bank -> {
-                        Long limitAmt = bank.getLimitAmt();
-                        bank.setLimitAmt(limitAmt == null ? -1L : limitAmt);
-                        bank.setUseYn(StringUtils.isNull(bank.getUseYn()) ? AccConstant.No : bank.getUseYn());
-                    })
-                    .collect(Collectors.toList());
-
-            return successResponse(bankInfos);
         } catch(Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getLocalizedMessage());
         }
     }
 
-    public List<BankInfo> getBankInfoByCond(BankInfoReq param) {
-        return bankInfoRepo.getBankInfoListByCondition(param);
+    public ResponseEntity<ResponseData> saveBankInfo(List<BankInfoReq> saveParam) {
+        return null;
     }
 
     /**

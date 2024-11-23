@@ -7,7 +7,8 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class ResponseData {
-    private Object data;
-    private String message;
+public class ResponseData<T> {
+    private boolean success;
+    private T data;
+    private ErrorEntity error;
 }

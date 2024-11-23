@@ -21,5 +21,6 @@ public class JournalHeaderReq {
     private String status;
     private String trxType;
     private LocalDateTime createDate;
+    private String internalYn;
     List<JournalLinesReq> jeLineList;
 }

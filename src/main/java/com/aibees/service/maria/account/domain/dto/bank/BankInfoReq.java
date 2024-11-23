@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -18,4 +20,5 @@ public class BankInfoReq {
     private String useYn;
     private String trxType;
     private Long limitAmt;
+    private List<BankInfoReq> bankInfoReqs;
 }

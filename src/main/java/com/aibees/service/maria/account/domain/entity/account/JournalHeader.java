@@ -28,5 +28,6 @@ public class JournalHeader {
     private String categoryCd;
     private String remark;
     private String status;
+    private String internalYn;
     private LocalDateTime createDate;
 }

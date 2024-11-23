@@ -163,12 +163,12 @@ public class CommonFileService {
             }
 
             return ResponseEntity.ok().body(
-                    ResponseData.builder().message("SUCCESS").build()
+                    ResponseData.builder().build()
             );
         } catch(Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    ResponseData.builder().message("FAILED").build()
+                    ResponseData.builder().build()
             );
         }
     }

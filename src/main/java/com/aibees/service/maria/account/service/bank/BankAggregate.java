@@ -79,35 +79,32 @@ public class BankAggregate extends ServiceCommon {
         }
     }
 
-    public ResponseEntity<ResponseData> getBankInfoList(BankInfoReq param) {
-        return bankInfoService.getBankInfoList(param);
-    }
-
     public ResponseEntity<ResponseData> getBankStatementTmpList(String fileHashId) {
-        List<BankStatementTmp> tmpList = bankService.getBankStatementTmpList(fileHashId);
-
-        BankInfoReq req = BankInfoReq.builder().build();
-        Map<String, String> bankInfos = bankInfoService.getBankInfoByCond(req)
-                .stream()
-                .collect(Collectors.groupingBy(BankInfo::getBankId, Collectors.mapping(BankInfo::getBankNm, Collectors.joining())));
-
-        List<BankStatementRes> resultList = tmpList.stream()
-                .map(tmp ->
-                        BankStatementRes.builder()
-                        .fileHash(tmp.getFileHash())
-                        .bankId(tmp.getBankId())
-                        .bankNm(bankInfos.get(tmp.getBankId()))
-                        .entryCd(tmp.getEntryCd())
-                        .entryNm(tmp.getEntryCd().equals("1") ? "지출" : "수입")
-                        .usageCd(tmp.getUsageCd())
-                        .ymd(tmp.getYmd())
-                        .times(tmp.getTimes())
-                        .remark(tmp.getRemark())
-                        .amount(tmp.getAmount())
-                        .build())
-                .collect(Collectors.toList());
-
-        return successResponse(resultList);
+//        List<BankStatementTmp> tmpList = bankService.getBankStatementTmpList(fileHashId);
+//
+//        BankInfoReq req = BankInfoReq.builder().build();
+//        Map<String, String> bankInfos = bankInfoService.getBankInfoByCond(req)
+//                .stream()
+//                .collect(Collectors.groupingBy(BankInfo::getBankId, Collectors.mapping(BankInfo::getBankNm, Collectors.joining())));
+//
+//        List<BankStatementRes> resultList = tmpList.stream()
+//                .map(tmp ->
+//                        BankStatementRes.builder()
+//                        .fileHash(tmp.getFileHash())
+//                        .bankId(tmp.getBankId())
+//                        .bankNm(bankInfos.get(tmp.getBankId()))
+//                        .entryCd(tmp.getEntryCd())
+//                        .entryNm(tmp.getEntryCd().equals("1") ? "지출" : "수입")
+//                        .usageCd(tmp.getUsageCd())
+//                        .ymd(tmp.getYmd())
+//                        .times(tmp.getTimes())
+//                        .remark(tmp.getRemark())
+//                        .amount(tmp.getAmount())
+//                        .build())
+//                .collect(Collectors.toList());
+//
+//        return successResponse(resultList);
+        return null;
     }
 
     public ResponseEntity<ResponseData> getBankSelectList() {

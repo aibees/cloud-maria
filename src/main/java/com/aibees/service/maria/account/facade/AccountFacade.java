@@ -50,13 +50,12 @@ public class AccountFacade {
             return ResponseEntity.ok(
                 ResponseData.builder()
                     .data(fileNameList)
-                    .message(AccConstant.CM_SUCCESS).build()
+                    .build()
             );
         } catch(Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
                 ResponseData.builder()
-                    .message(AccConstant.CM_FAILED)
                     .data(e.getMessage())
                     .build()
             );
@@ -68,13 +67,12 @@ public class AccountFacade {
             return ResponseEntity.ok(
                     ResponseData.builder()
                             .data(bankService.getBankStatementTmpList(hashId))
-                            .message(AccConstant.CM_SUCCESS).build()
+                            .build()
             );
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(
                             ResponseData.builder()
-                                    .message(AccConstant.CM_FAILED)
                                     .data("ERROR")
                                     .build()
                     );
