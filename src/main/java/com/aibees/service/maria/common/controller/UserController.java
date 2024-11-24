@@ -1,6 +1,7 @@
 package com.aibees.service.maria.common.controller;
 
-import com.aibees.service.maria.common.domain.dto.UserDto;
+import com.aibees.service.maria.common.domain.dto.UserReq;
+import com.aibees.service.maria.common.domain.dto.UserRes;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.service.UserService;
 import lombok.AllArgsConstructor;
@@ -17,12 +18,13 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<ResponseData> galleryMgmtLogin(@RequestBody UserDto param) {
+    @PostMapping("/gallery/login")
+    public UserRes galleryMgmtLogin(@RequestBody UserReq param) throws Exception {
+        return userService.userLogin(param);
+    }
 
-        System.out.println(param.toString());
-
-
+    @PostMapping("/ledger/login")
+    public UserRes ledgerLogin(@RequestBody UserReq param) throws Exception {
         return userService.userLogin(param);
     }
 }
