@@ -19,12 +19,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/gallery/login")
-    public UserRes galleryMgmtLogin(@RequestBody UserReq param) throws Exception {
-        return userService.userLogin(param);
+    public UserRes galleryMgmtLogin(@RequestBody UserReq param) {
+        return userService.userLogin(param, "gallery");
     }
 
     @PostMapping("/ledger/login")
-    public UserRes ledgerLogin(@RequestBody UserReq param) throws Exception {
-        return userService.userLogin(param);
+    public UserRes ledgerLogin(@RequestBody UserReq param) {
+        return userService.userLogin(param, "ledger");
     }
 }
