@@ -6,7 +6,7 @@ import java.security.SecureRandom;
 
 public class CryptoUtils {
 
-    public static String geSalt() {
+    public static String getSalt() {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[10];
 

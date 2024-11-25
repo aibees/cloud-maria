@@ -1,11 +1,11 @@
 package com.aibees.service.maria.common.domain.entity;
 
+import com.aibees.service.maria.common.domain.entity.pk.UserAuthPk;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 
 @NoArgsConstructor
@@ -15,13 +15,13 @@ import javax.persistence.Table;
 @Getter
 @Builder
 @ToString
-@Table(name = "user_detail")
-public class UserDetail {
+@Table(name = "user_auth")
+@IdClass(UserAuthPk.class)
+public class UserAuth {
     @Id
     private Long uuid;
-    private String password;
-    private String errcnt;
-    private String otp;
-    private String accessToken;
-    private LocalDateTime accessTime;
+    @Id
+    private String authCd;
+    private String authNm;
+    private String enabledFlag;
 }

@@ -2,8 +2,6 @@ package com.aibees.service.maria.common.domain.entity;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -15,13 +13,9 @@ import javax.persistence.Table;
 @Getter
 @Builder
 @ToString
-@Table(name = "user_detail")
-public class UserDetail {
+@Table(name = "user_authority")
+public class UserAuthority {
     @Id
-    private Long uuid;
-    private String password;
-    private String errcnt;
-    private String otp;
-    private String accessToken;
-    private LocalDateTime accessTime;
+    private String systemCd;
+    private String loginKey;
 }
