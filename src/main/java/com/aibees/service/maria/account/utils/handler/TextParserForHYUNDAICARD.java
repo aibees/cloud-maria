@@ -1,7 +1,7 @@
 package com.aibees.service.maria.account.utils.handler;
 
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.domain.entity.card.AccountCardInfo;
-import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.utils.DateUtils;
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +14,7 @@ public class TextParserForHYUNDAICARD implements TextParser {
 
     @Override
     public Map<String, Object> process(String[] texts) {
-        CardStatementTmp statementParam;
+        ImportStatementTmp statementParam;
         String[] splitOfCard = texts[0].split(AccConstant.SPACE_STR);
 
         Map<String, Object> cardInfoParam = new HashMap<>();
@@ -37,7 +37,7 @@ public class TextParserForHYUNDAICARD implements TextParser {
         // 4. remark
         String remark = texts[4];
 
-        statementParam = CardStatementTmp.builder()
+        statementParam = ImportStatementTmp.builder()
                 .ymd(ymd)
                 .times(times)
                 .amount(Long.parseLong(amount))

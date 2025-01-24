@@ -1,7 +1,7 @@
 package com.aibees.service.maria.account.utils.handler;
 
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.domain.entity.card.AccountCardInfo;
-import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
 import com.aibees.service.maria.common.utils.DateUtils;
 import com.google.common.collect.ImmutableMap;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 public class TextParserForHANACARD implements TextParser {
     @Override
     public Map<String, Object> process(String[] texts) {
-        CardStatementTmp statementParam;
+        ImportStatementTmp statementParam;
         // 1. card info
         Map<String, Object> cardInfoParam = new HashMap<>();
         cardInfoParam.put("company", texts[0].substring(0, 2));
@@ -29,7 +29,7 @@ public class TextParserForHANACARD implements TextParser {
         // 4. remark
         String remark = texts[6];
 
-        statementParam = CardStatementTmp.builder()
+        statementParam = ImportStatementTmp.builder()
                 .ymd(ymd)
                 .times(times)
                 .amount(Long.parseLong(amount))

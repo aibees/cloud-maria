@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AcctMasterRepo extends JpaRepository<AcctMaster, String> {
 
     List<AcctMaster> findAllByAcctCdContainingOrAcctNmContaining(String acctCd, String acctNm);
+    List<AcctMaster> findAllByEnabledFlagAndFinalFlag(String enabledFlag, String finalFlag);
 }

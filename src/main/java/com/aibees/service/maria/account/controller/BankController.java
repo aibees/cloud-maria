@@ -1,10 +1,10 @@
 package com.aibees.service.maria.account.controller;
 
-import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
-import com.aibees.service.maria.account.domain.dto.bank.BankInfoRes;
-import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
+import com.aibees.service.maria.account.domain.dto.account.ImportFileRes;
+import com.aibees.service.maria.account.domain.dto.bank.*;
 import com.aibees.service.maria.account.facade.AccountFacade;
 import com.aibees.service.maria.account.service.bank.BankAggregate;
+import com.aibees.service.maria.account.service.bank.BankImportService;
 import com.aibees.service.maria.account.service.bank.BankInfoService;
 import com.aibees.service.maria.common.utils.StringUtils;
 import com.aibees.service.maria.common.domain.entity.ResponseData;
@@ -25,21 +25,31 @@ public class BankController {
 
     private final BankAggregate bankAggregate;
     private final BankInfoService bankInfoService;
-    private final AccountFacade accountFacade;
+    private final BankImportService importService;
 
     /***************************************************
      ********       Bank - tmp Statement        ********
      ***************************************************/
 
-//    /**
-//     * Bank Temp Statement 리스트 조회
-//     * @param hashId
-//     * @return
-//     */
-//    @GetMapping("/temp/list")
-//    public ResponseEntity<ResponseData> getBankStatementTmpList(@RequestParam(name = "hashId") String hashId) {
-//        return bankAggregate.getBankStatementTmpList(hashId);
-//    }
+    @GetMapping("/files")
+    public List<ImportFileRes> getBankExcelTmpFiles() {
+        return importService.getTmpFileList();
+    }
+
+    @GetMapping("/files/{fileHash}")
+    public List<BankImportRes> getBankTmpListByFile(BankImportReq param) {
+        return importService.getTmpStatementList(param);
+    }
+
+    @PostMapping("/files")
+    public BankImportRes uploadBankExcelFile(BankImportReq param) {
+        return importService.uploadBankTransaction(param);
+    }
+
+    @PutMapping("/files")
+    public BankImportRes saveTmpStatement(@RequestBody BankImportReq param) {
+        return importService.tmpSaveStatement(param);
+    }
 
     /***************************************************
      ********     Bank - Account Statement      ********
@@ -83,21 +93,4 @@ public class BankController {
     public void saveBankInfo(@RequestBody BankInfoReq param) {
         bankAggregate.saveBankInfo(param);
     }
-
-//    @PostMapping("/file")
-//    public ResponseEntity<ResponseData> getExcelFiles(@RequestParam("type") String type, @RequestParam("file") MultipartFile file) {
-//        return accountFacade.excelParse(type, file);
-//    }
-
-    /***************************************************
-     ********        Bank - Account Info        ********
-     ***************************************************/
-//    @GetMapping("/option")
-//    public ResponseEntity<ResponseData> getOptionData(@RequestParam(name = "tag")String tag) {
-//        if(StringUtils.isEquals(tag, "BANK_SELECT")) {
-//            return bankAggregate.getBankSelectList();
-//        } else {
-//            return ResponseEntity.badRequest().body(null);
-//        }
-//    }
 }

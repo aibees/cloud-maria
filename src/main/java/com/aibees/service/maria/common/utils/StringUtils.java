@@ -29,6 +29,10 @@ public class StringUtils {
         return s1.equals(s2);
     }
 
+    public static boolean isNotEquals(String s1, String s2) {
+        return !isEquals(s1, s2);
+    }
+
     public static String getWithDefault(String s1, String defaultStr) {
         if(isNull(s1)) {
             return defaultStr;

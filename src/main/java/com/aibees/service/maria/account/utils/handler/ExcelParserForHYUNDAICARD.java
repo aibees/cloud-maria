@@ -1,9 +1,9 @@
 package com.aibees.service.maria.account.utils.handler;
 
-import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.utils.MapUtils;
 import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableMap;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ExcelParserForHYUNDAICARD implements ExcelParser {
     @Override
-    public Map<String, Object> parse(Workbook workbook, String fileHash) {
+    public List<ImportStatementTmp> parse(Workbook workbook, Map<String, Object> param) {
         int HEADER_ROW = 2;
         int DATA_ROW = 3;
 
@@ -23,7 +23,7 @@ public class ExcelParserForHYUNDAICARD implements ExcelParser {
 
         System.out.println("HYUNDAI Parsing is Completed,,, size : " + dataListByRow.size());
 
-        List<CardStatementTmp> statementList = dataListByRow.keySet().stream()
+        return dataListByRow.keySet().stream()
                 .map(k -> {
                     List<String> data = dataListByRow.get(k);
                     String ymd = data.get(0)
@@ -35,23 +35,21 @@ public class ExcelParserForHYUNDAICARD implements ExcelParser {
                     String cardNoStr = data.get(3).substring(data.get(3).length()-4).replace("*", "%");
 
                     System.out.println("ymd : " + ymd + ", cardNo : " + cardNoStr);
-                    return CardStatementTmp.builder()
-                            .fileHash(fileHash)
+                    return ImportStatementTmp.builder()
+                            .fileHash(MapUtils.getString(param, "fileHash"))
                             .ymd(ymd) // 날짜
                             .times(trimTimes(data.get(1)))
                             .cardNo(cardNoStr)
                             .approvNum(Strings.padStart(data.get(8), 8, '0')) // 승인번호
                             .remark(data.get(4)) // 가맹점명
                             .amount(Long.parseLong(data.get(5).replace(",", "")))
-                            .apYn("매입")
-                            .status("정상")
-                            .usageCd(getUsageWithType(data.get(4)))
+                            .apYn(null)
+                            .status(null)
+                            .acctCd(getUsageWithType(data.get(4)))
                             .build();
                 })
                 .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
                 .collect(Collectors.toList());
-
-        return ImmutableMap.of(AccConstant.CM_RESULT, statementList);
     }
 
     private String trimTimes(String src) {

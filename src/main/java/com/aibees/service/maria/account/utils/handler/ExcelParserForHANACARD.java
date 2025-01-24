@@ -1,7 +1,8 @@
 package com.aibees.service.maria.account.utils.handler;
 
-import com.aibees.service.maria.account.domain.entity.card.CardStatementTmp;
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.utils.MapUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 
 public class ExcelParserForHANACARD implements ExcelParser {
     @Override
-    public Map<String, Object> parse(Workbook workbook, String fileHash) {
+    public List<ImportStatementTmp> parse(Workbook workbook, Map<String, Object> param) {
         int HEADER_ROW = 3;
         int DATA_ROW = 4;
 
@@ -23,12 +24,12 @@ public class ExcelParserForHANACARD implements ExcelParser {
 
         System.out.println("HYUNDAI Parsing is Completed,,, size : " + dataListByRow.size());
 
-        List<CardStatementTmp> statementList = dataListByRow.keySet().stream()
+        return dataListByRow.keySet().stream()
                 .map(k -> {
                     List<String> data = dataListByRow.get(k);
 
-                    return CardStatementTmp.builder()
-                            .fileHash(fileHash)
+                    return ImportStatementTmp.builder()
+                            .fileHash(MapUtils.getString(param, "fileHash"))
                             .ymd(data.get(0).replace(".", ""))
                             .times(data.get(1).replace(":", ""))
                             .cardNo(data.get(2).split(AccConstant.SPACE_STR)[1])
@@ -37,12 +38,10 @@ public class ExcelParserForHANACARD implements ExcelParser {
                             .amount(Long.parseLong(data.get(5).split("\\.")[0]))
                             .apYn(data.get(9))
                             .status(data.get(13))
-                            .usageCd("FF")
+                            .acctCd("FF")
                             .build();
                 })
                 .filter(state -> state.getApYn().equals("매입") || state.getStatus().equals("정상"))
                 .collect(Collectors.toList());
-
-        return ImmutableMap.of(AccConstant.CM_RESULT, statementList);
     }
 }

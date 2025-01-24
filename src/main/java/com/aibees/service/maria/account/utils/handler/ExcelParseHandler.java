@@ -1,6 +1,8 @@
 package com.aibees.service.maria.account.utils.handler;
 
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.utils.MapUtils;
 import com.aibees.service.maria.common.utils.StringUtils;
 import com.google.common.math.DoubleMath;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +22,10 @@ public class ExcelParseHandler {
 
     private static ExcelParser parser;
 
-    public static Map<String, Object> excelParser(Workbook workbook, String fileHash, String type) {
+    public static List<ImportStatementTmp> excelParser(Workbook workbook, Map<String, Object> param) {
         try {
-            getExcelParser(type);
-            return parser.parse(workbook, fileHash);
+            getExcelParser(MapUtils.getString(param, "bankType"));
+            return parser.parse(workbook, param);
         } catch(Exception e) {
             e.printStackTrace();
             return null;
@@ -101,7 +103,7 @@ public class ExcelParseHandler {
 
     private static void getExcelParser(String type) throws Exception {
         String parserPrefix = "com.aibees.service.maria.account.utils.handler.ExcelParserFor";
-        Class<ExcelParser> parserClass = (Class<ExcelParser>) Class.forName(String.join(".", parserPrefix, type));
+        Class<ExcelParser> parserClass = (Class<ExcelParser>) Class.forName(parserPrefix.concat(type));
 
         parser = parserClass.getDeclaredConstructor().newInstance();
     }

@@ -39,4 +39,11 @@ public class AcctService extends ServiceCommon {
             throw new MariaException(e.getMessage());
         }
     }
+
+    public List<AcctMasterRes> getAcctMasterForSelect(AcctMasterReq param) {
+        return acctRepo.findAllByEnabledFlagAndFinalFlag(param.getEnabledFlag(), param.getFinalFlag())
+            .stream()
+            .map(acctMapper::toResp)
+            .collect(Collectors.toList());
+    }
 }

@@ -61,21 +61,4 @@ public class AccountFacade {
             );
         }
     }
-
-    public ResponseEntity<ResponseData> getStatementTmpByFileHash(String type, String hashId) {
-        if(StringUtils.isEquals(type, AccConstant.IMPORT_BANK)) {
-            return ResponseEntity.ok(
-                    ResponseData.builder()
-                            .data(bankService.getBankStatementTmpList(hashId))
-                            .build()
-            );
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(
-                            ResponseData.builder()
-                                    .data("ERROR")
-                                    .build()
-                    );
-        }
-    }
 }

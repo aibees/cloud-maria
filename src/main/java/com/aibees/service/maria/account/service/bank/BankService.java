@@ -3,9 +3,7 @@ package com.aibees.service.maria.account.service.bank;
 import com.aibees.service.maria.account.domain.dto.bank.BankStatementReq;
 import com.aibees.service.maria.account.domain.entity.account.AccountImportFile;
 import com.aibees.service.maria.account.domain.entity.bank.BankStatement;
-import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
 import com.aibees.service.maria.account.domain.repo.bank.BankStatementRepo;
-import com.aibees.service.maria.account.domain.repo.bank.BankStatementTmpRepo;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.utils.StringUtils;
@@ -30,7 +28,6 @@ import static com.aibees.service.maria.account.utils.constant.AccConstant.IMPORT
 public class BankService extends ServiceCommon {
 
 //    private final ImportFileRepo importFileRepo;
-    private final BankStatementTmpRepo statementTmpRepo;
     private final BankStatementRepo statementRepo;
 
     /*************************
@@ -60,22 +57,16 @@ public class BankService extends ServiceCommon {
             if (workbook == null) {
                 throw new Exception("workBook is Null");
             }
-            List<BankStatementTmp> bankStatements = (List<BankStatementTmp>) ExcelParseHandler.excelParser(workbook, fileHashName, type).get(AccConstant.CM_RESULT);
-            statementTmpRepo.saveAll(bankStatements);
 
             registFileHashName(fileHashName, file.getOriginalFilename());
 
-            return successResponse(bankStatements);
+            return null;
         } catch (IOException ioe) {
             return failedResponse(ioe);
         } catch (Exception e) {
             e.printStackTrace();
             return failedResponse(e);
         }
-    }
-
-    public List<BankStatementTmp> getBankStatementTmpList(String fileHashId) {
-        return statementTmpRepo.findAllByFileHash(fileHashId);
     }
 
     public ResponseEntity<ResponseData> saveBankStatement() {

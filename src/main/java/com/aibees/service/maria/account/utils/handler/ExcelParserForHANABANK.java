@@ -1,7 +1,8 @@
 package com.aibees.service.maria.account.utils.handler;
 
-import com.aibees.service.maria.account.domain.entity.bank.BankStatementTmp;
+import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
 import com.aibees.service.maria.account.utils.constant.AccConstant;
+import com.aibees.service.maria.common.utils.MapUtils;
 import com.google.common.collect.ImmutableMap;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ExcelParserForHANABANK implements ExcelParser {
     @Override
-    public Map<String, Object> parse(Workbook workbook, String fileHash) {
+    public List<ImportStatementTmp> parse(Workbook workbook, Map<String, Object> param) {
         int HEADER_ROW = 5;
         int DATA_ROW = 6;
 
@@ -20,31 +21,31 @@ public class ExcelParserForHANABANK implements ExcelParser {
         List<String> colList = ExcelParseHandler.getHeaderList(dataSheet.getRow(HEADER_ROW));
         Map<Integer, List<String>> dataListByRow = ExcelParseHandler.getDataList(dataSheet, colList, DATA_ROW);
 
-        System.out.println("HANABANK Parsing is Completed,,, size : " + dataListByRow.size());
-        String bankAcct = dataSheet.getRow(2).getCell(1).toString().replace("-", "");
-
-        List<BankStatementTmp> statementList = dataListByRow.keySet().stream()
+        return dataListByRow.keySet().stream()
             .map(k -> {
                 List<String> data = dataListByRow.get(k);
                 String[] dateData = data.get(0).split(AccConstant.SPACE_STR);
 
+                String bankId = MapUtils.getString(param, "bankId");
+                String bankCd = MapUtils.getString(param, "bankCd");
+                String ymdStr = dateData[0].replace("-", "");
+                String timeStr = dateData[1].replace(":", "");
                 // 수입 : 0 / 지출 : 1
                 String entry = (data.get(3).equals("0"))? "0": "1"; // 출금 쪽이 0이면 수입(0), 아니면 지출(1)
 
-                return BankStatementTmp.builder()
-                    .fileHash(fileHash)
+                return ImportStatementTmp.builder()
+                    .statementId(bankCd.concat(ymdStr).concat(timeStr))
+                    .fileHash(MapUtils.getString(param, "fileHash"))
                     .ymd(dateData[0].replace("-", ""))
                     .times(dateData[1].replace(":", ""))
                     .entryCd(entry)
-                    .usageCd(getUsageWithType(data.get(1), data.get(2), entry))
+                    .bankId(bankId)
+                    .acctCd(getUsageWithType(data.get(1), data.get(2), entry))
                     .amount(Long.parseLong( (entry.equals("1"))? data.get(3) : data.get(4)) )
                     .remark(data.get(2))
                     .build();
             })
             .collect(Collectors.toList());
-
-
-        return ImmutableMap.of(AccConstant.CM_RESULT, statementList);
     }
 
     private String getUsageWithType(String type, String remark, String entry) {

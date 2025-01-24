@@ -28,6 +28,11 @@ public class AccountController {
         return acctService.searchAcctListForPopup(param);
     }
 
+    @GetMapping("/acct")
+    public List<AcctMasterRes> getAcctMasterListForSelect(AcctMasterReq param) {
+        return acctService.getAcctMasterForSelect(param);
+    }
+
     /***************************************************
      ********              전표처리               ********
      ***************************************************/

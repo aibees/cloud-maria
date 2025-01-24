@@ -23,19 +23,18 @@ public class CommonControllerAdvice implements ResponseBodyAdvice<Object> {
                                   Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
                                   ServerHttpResponse response) {
 
-        System.out.println("instance : " + body.getClass().getSimpleName());
-        System.out.println(body instanceof ErrorEntity);
         if (body instanceof ErrorEntity) {
             return fail((ErrorEntity) body);
+        } else {
+            return success(body);
         }
-        return success(body);
     }
 
     private <T> ResponseData<T> success(T response) {
         return new ResponseData<> (true, response, null);
     }
 
-    private ResponseData<?> fail(ErrorEntity e) {
+    private <T> ResponseData<T> fail(ErrorEntity e) {
         return new ResponseData<>(false, null, e);
     }
 }
