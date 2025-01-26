@@ -41,6 +41,7 @@ public class JournalService extends ServiceCommon {
     private final DateTimeFormatter ymdFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final DateTimeFormatter ymFormat = DateTimeFormatter.ofPattern("yyyyMM");
+    private final DateTimeFormatter fullFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     /**
      * 전표 조회
@@ -80,10 +81,12 @@ public class JournalService extends ServiceCommon {
             if (StringUtils.isEquals(headerParam.getTrxType(), "INSERT")) {
                 createHeaderNo(headerParam);
                 headerNo = insertNewJournal(headerParam);
+                System.out.println("headerNo : " + headerNo);
             }
 
             return headerNo;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new MariaException(e.getMessage());
         }
     }
@@ -93,6 +96,9 @@ public class JournalService extends ServiceCommon {
      */
     private String insertNewJournal(JournalHeaderReq headerParam) {
         String jeDateStr = headerParam.getJeDate().replace("-", "");
+        String jeTimeStr = headerParam.getJeTimes().replace(":", "");
+
+        String transactionTimeStr = String.join("", jeDateStr, jeTimeStr);
 
         JournalHeader newHeader = JournalHeader.builder()
             .jeHeaderId(headerParam.getJeHeaderId())
@@ -105,6 +111,8 @@ public class JournalService extends ServiceCommon {
             .status("CONFIRM")
             .createDate(LocalDateTime.now())
             .internalYn(headerParam.getInternalYn())
+            .statementId(headerParam.getStatementId())
+            .transactionDate(LocalDateTime.parse(transactionTimeStr, fullFormat))
             .build();
 
         headerRepo.save(newHeader);

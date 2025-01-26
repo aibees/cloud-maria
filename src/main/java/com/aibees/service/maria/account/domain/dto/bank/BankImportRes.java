@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BankImportRes {
 
-    private String fileId;
     private String statementId;
     private String ymd;
     private String times;

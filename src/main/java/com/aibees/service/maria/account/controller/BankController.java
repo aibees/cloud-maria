@@ -51,6 +51,11 @@ public class BankController {
         return importService.tmpSaveStatement(param);
     }
 
+    @PostMapping("/files/je")
+    public BankImportRes createJe(@RequestBody BankImportReq param) {
+        return importService.createJeLines(param.getData());
+    }
+
     /***************************************************
      ********     Bank - Account Statement      ********
      ***************************************************/

@@ -23,11 +23,13 @@ public class JournalHeader {
     private long jeHeaderId;
     private String jeHeaderNo;
     private LocalDate jeDate;
+    private LocalDateTime transactionDate;
     private String bankId;
     private String sourceCd;
     private String categoryCd;
     private String remark;
     private String status;
     private String internalYn;
+    private String statementId;
     private LocalDateTime createDate;
 }

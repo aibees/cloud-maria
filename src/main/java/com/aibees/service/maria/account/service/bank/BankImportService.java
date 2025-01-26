@@ -1,6 +1,8 @@
 package com.aibees.service.maria.account.service.bank;
 
 import com.aibees.service.maria.account.domain.dto.account.ImportFileRes;
+import com.aibees.service.maria.account.domain.dto.account.JournalHeaderReq;
+import com.aibees.service.maria.account.domain.dto.account.JournalLinesReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankImportReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankImportRes;
 import com.aibees.service.maria.account.domain.entity.account.AccountImportFile;
@@ -10,6 +12,7 @@ import com.aibees.service.maria.account.domain.mapper.ImportStatementMapper;
 import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
 import com.aibees.service.maria.account.domain.repo.account.ImportStatementTmpRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankInfoRepo;
+import com.aibees.service.maria.account.service.account.JournalService;
 import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.utils.StringUtils;
@@ -25,10 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.aibees.service.maria.account.utils.constant.AccConstant.IMPORT_BANK;
@@ -41,6 +41,7 @@ public class BankImportService {
     private final ImportStatementTmpRepo tmpRepo;
     private final ImportFileRepo fileRepo;
     private final ImportStatementMapper tmpMapper;
+    private final JournalService journalService;
 
     private final String TIME_DATE = "-";
     private final String TIME_HHMMSS = ":";
@@ -111,6 +112,7 @@ public class BankImportService {
 
     /**
      * 임시저장
+     * 개발 완
      * @param param
      * @return
      */
@@ -189,7 +191,7 @@ public class BankImportService {
 
             return BankImportRes.builder()
                     .bankId(bankId)
-                    .fileId(fileHashName)
+                    .fileHash(fileHashName)
                     .build();
 
         } catch (IOException e) {
@@ -198,6 +200,65 @@ public class BankImportService {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public BankImportRes createJeLines(List<BankImportRes> data) {
+        for (BankImportRes row : data) {
+
+            // 전표 헤더 셋업
+            JournalHeaderReq jeHeader = new JournalHeaderReq();
+            jeHeader.setJeDate(row.getYmd());
+            jeHeader.setJeTimes(row.getTimes());
+            jeHeader.setBankId(row.getBankId());
+            jeHeader.setSourceCd("AU");
+            jeHeader.setCategoryCd("01");
+            jeHeader.setRemark(row.getRemark());
+            jeHeader.setStatementId(row.getStatementId());
+            jeHeader.setTrxType("INSERT");
+
+            List<JournalLinesReq> jeLines = createJeLines(row);
+            jeHeader.setJeLineList(jeLines);
+
+            journalService.saveJournal(jeHeader);
+
+            // 임시파일 삭제
+        }
+
+        return BankImportRes.builder().build();
+    }
+
+    private List<JournalLinesReq> createJeLines(BankImportRes row) {
+        JournalLinesReq line = new JournalLinesReq(); // 계좌이력
+        JournalLinesReq sideLine = new JournalLinesReq(); // 계좌이력 상대라인
+        line.setAcctCd(row.getAcctCd());
+        line.setRemark(row.getRemark());
+        sideLine.setAcctCd("1010001");
+        sideLine.setRemark(row.getRemark());
+
+        String entryCd = row.getEntryCd();
+        if (entryCd.equals("0")) {
+            // 수입
+            line.setAmountCr(row.getAmount());
+            sideLine.setAmountDr(row.getAmount());
+
+        } else {
+            // 지출
+
+            line.setAmountDr(row.getAmount());
+            sideLine.setAmountCr(row.getAmount());
+        }
+
+        List<JournalLinesReq> lines = new ArrayList<>();
+        lines.add(line);
+        lines.add(sideLine);
+
+        return lines;
+    }
+
+    /**
+     * 업로드 파일에 대한 hash 값 생성
+     * 개발 완
+     * @return
+     */
     private String createFileHash() {
         return LocalDateTime
                 .now()
@@ -205,6 +266,13 @@ public class BankImportService {
                 .concat(StringUtils.getRandomStr(4));
     }
 
+    /**
+     * 은행코드에서 이름을 매핑시키는 method
+     * excel parser에서 은행에 맞는 parser reflection을 해야하기에 변경해야 한다.
+     * 개발 완
+     * @param cd
+     * @return
+     */
     private String getBankType(String cd) {
         if ("88".equals(cd)) {
             return "SHINHANBANK";
