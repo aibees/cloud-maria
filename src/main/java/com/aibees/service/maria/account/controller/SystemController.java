@@ -1,18 +1,19 @@
 package com.aibees.service.maria.account.controller;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.aibees.service.maria.account.domain.dto.system.*;
 import com.aibees.service.maria.account.service.system.SystemCategoryService;
 import com.aibees.service.maria.account.service.system.SystemPresetService;
 import com.aibees.service.maria.account.service.system.SystemSourceService;
-import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor

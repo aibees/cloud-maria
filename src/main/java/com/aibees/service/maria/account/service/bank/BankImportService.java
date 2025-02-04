@@ -7,12 +7,14 @@ import com.aibees.service.maria.account.domain.dto.bank.BankImportReq;
 import com.aibees.service.maria.account.domain.dto.bank.BankImportRes;
 import com.aibees.service.maria.account.domain.entity.account.AccountImportFile;
 import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
+import com.aibees.service.maria.account.domain.entity.account.pk.AccountImportFileId;
 import com.aibees.service.maria.account.domain.entity.bank.BankInfo;
 import com.aibees.service.maria.account.domain.mapper.ImportStatementMapper;
 import com.aibees.service.maria.account.domain.repo.account.ImportFileRepo;
 import com.aibees.service.maria.account.domain.repo.account.ImportStatementTmpRepo;
 import com.aibees.service.maria.account.domain.repo.bank.BankInfoRepo;
 import com.aibees.service.maria.account.service.account.JournalService;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.account.utils.handler.ExcelParseHandler;
 import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.utils.StringUtils;
@@ -52,7 +54,7 @@ public class BankImportService {
      * @return
      */
     public List<ImportFileRes> getTmpFileList() {
-        return fileRepo.findAllByFileType(IMPORT_BANK)
+        return fileRepo.findAllByFileTypeAndUploadedYn(IMPORT_BANK, AccConstant.No)
                 .stream()
                 .map(data ->
                         ImportFileRes
@@ -71,6 +73,10 @@ public class BankImportService {
      */
     public List<BankImportRes> getTmpStatementList(BankImportReq param) {
         List<ImportStatementTmp> resultList = tmpRepo.findAllByFileHash(param.getFileHash());
+
+        for (ImportStatementTmp importStatementTmp : resultList) {
+            System.out.println(importStatementTmp);
+        }
 
         String bankId = resultList.get(0).getBankId();
         BankInfo info = bankInfoRepo.findById(bankId).orElse(new BankInfo());
@@ -178,6 +184,9 @@ public class BankImportService {
                 throw new MariaException("비정상적인 엑셀");
             }
 
+            for (ImportStatementTmp tmpStatement : tmpStatements) {
+                System.out.println(tmpStatement);
+            }
             tmpRepo.saveAll(tmpStatements);
 
             AccountImportFile importFile = AccountImportFile
@@ -185,6 +194,7 @@ public class BankImportService {
                     .fileId(fileHashName)
                     .fileType(IMPORT_BANK)
                     .fileName(fileName[0])
+                    .uploadedYn(AccConstant.No)
                     .build();
 
             fileRepo.save(importFile);
@@ -201,7 +211,24 @@ public class BankImportService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public BankImportRes createJeLines(List<BankImportRes> data) {
+    public BankImportRes createJeLines(BankImportReq param) {
+        AccountImportFileId aifKey = AccountImportFileId.builder()
+            .fileId(param.getFileHash())
+            .fileType(IMPORT_BANK)
+            .build();
+
+        System.out.println(param);
+
+        Optional<AccountImportFile> fileEntity = fileRepo.findById(aifKey);
+        AccountImportFile aif;
+
+        if (fileEntity.isEmpty() || fileEntity.get().getUploadedYn().equals(AccConstant.YES)) {
+            throw new MariaException("전표 생성해야하는데 파일 정보가 이상합니다.");
+        } else {
+            aif = fileEntity.get();
+        }
+
+        List<BankImportRes> data = param.getData();
         for (BankImportRes row : data) {
 
             // 전표 헤더 셋업
@@ -220,8 +247,10 @@ public class BankImportService {
 
             journalService.saveJournal(jeHeader);
 
-            // 임시파일 삭제
         }
+
+        // 임시파일 삭제 (uploadedYn = 'Y')
+        aif.setUploadedYn(AccConstant.YES);
 
         return BankImportRes.builder().build();
     }
@@ -242,7 +271,6 @@ public class BankImportService {
 
         } else {
             // 지출
-
             line.setAmountDr(row.getAmount());
             sideLine.setAmountCr(row.getAmount());
         }

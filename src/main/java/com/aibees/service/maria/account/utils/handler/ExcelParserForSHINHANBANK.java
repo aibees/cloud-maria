@@ -1,6 +1,7 @@
 package com.aibees.service.maria.account.utils.handler;
 
 import com.aibees.service.maria.account.domain.entity.account.ImportStatementTmp;
+import com.aibees.service.maria.account.utils.constant.AccConstant;
 import com.aibees.service.maria.common.utils.MapUtils;
 import com.aibees.service.maria.common.utils.StringUtils;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -21,24 +22,29 @@ public class ExcelParserForSHINHANBANK implements ExcelParser {
         Map<Integer, List<String>> dataListByRow = ExcelParseHandler.getDataList(dataSheet, colList, DATA_ROW);
 
         System.out.println("SHINHANBANK Parsing is Completed,,, size : " + dataListByRow.size());
-        String bankAcct = dataSheet.getRow(2).getCell(1).toString().replace("-", "");
+        String bankId = MapUtils.getString(param, "bankId");
+        String bankCd = MapUtils.getString(param, "bankCd");
 
         return dataListByRow.keySet().stream()
                 .map(k -> {
                     List<String> data = dataListByRow.get(k);
+                    String ymdStr = data.get(0).replace("-", "");
+                    String timeStr = data.get(1).replace(":", "");
 
                     // 수입 : 0 / 지출 : 1
                     String entryCd = (data.get(3).equals("0") || StringUtils.isNull(data.get(3)))? "0" : "1"; // 출금 쪽이 0이면 수입(0), 아니면 지출(1)
 
                     return ImportStatementTmp.builder()
-                            .fileHash(MapUtils.getString(param, "fileHash"))
-                            .ymd(data.get(0).replace("-", ""))
-                            .times(data.get(1).replace(":", ""))
-                            .entryCd(entryCd)
-                            .acctCd(getUsageWithType(data.get(2), data.get(5), entryCd))
-                            .amount(Long.parseLong( (entryCd.equals("1"))? data.get(3) : data.get(4)) )
-                            .remark(data.get(5))
-                            .build();
+                        .statementId(bankCd.concat(ymdStr).concat(timeStr))
+                        .fileHash(MapUtils.getString(param, "fileHash"))
+                        .ymd(data.get(0).replace("-", ""))
+                        .times(data.get(1).replace(":", ""))
+                        .entryCd(entryCd)
+                        .bankId(bankId)
+                        .acctCd(getUsageWithType(data.get(2), data.get(5), entryCd))
+                        .amount(Long.parseLong( (entryCd.equals("1"))? data.get(3) : data.get(4)) )
+                        .remark(data.get(5))
+                        .build();
                 }).collect(Collectors.toList());
     }
 

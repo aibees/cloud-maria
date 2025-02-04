@@ -18,6 +18,7 @@ public class BankInfoReq {
     private String bankType;
     private String bankAcct;
     private String useYn;
+    private String displayYn;
     private String trxType;
     private Long limitAmt;
     private List<BankInfoReq> bankInfoReqs;

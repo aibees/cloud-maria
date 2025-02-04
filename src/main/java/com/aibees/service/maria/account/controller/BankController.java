@@ -1,21 +1,19 @@
 package com.aibees.service.maria.account.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.aibees.service.maria.account.domain.dto.account.ImportFileRes;
-import com.aibees.service.maria.account.domain.dto.bank.*;
-import com.aibees.service.maria.account.facade.AccountFacade;
+import com.aibees.service.maria.account.domain.dto.bank.BankImportReq;
+import com.aibees.service.maria.account.domain.dto.bank.BankImportRes;
+import com.aibees.service.maria.account.domain.dto.bank.BankInfoReq;
+import com.aibees.service.maria.account.domain.dto.bank.BankInfoRes;
 import com.aibees.service.maria.account.service.bank.BankAggregate;
 import com.aibees.service.maria.account.service.bank.BankImportService;
 import com.aibees.service.maria.account.service.bank.BankInfoService;
-import com.aibees.service.maria.common.utils.StringUtils;
-import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -53,27 +51,8 @@ public class BankController {
 
     @PostMapping("/files/je")
     public BankImportRes createJe(@RequestBody BankImportReq param) {
-        return importService.createJeLines(param.getData());
+        return importService.createJeLines(param);
     }
-
-    /***************************************************
-     ********     Bank - Account Statement      ********
-     ***************************************************/
-
-//    /**
-//     * Bank Statement 리스트 조회
-//     * @param param
-//     * @return
-//     */
-//    @GetMapping("/statement/list")
-//    public ResponseEntity<ResponseData> getBankStatementList(BankStatementReq param) {
-//        return bankAggregate.getBankStatementList(param);
-//    }
-//
-//    @PostMapping("")
-//    public ResponseEntity<ResponseData> saveBankStatement(@RequestBody Map<String, Object> data) {
-//        return bankAggregate.saveBankStatement(data);
-//    }
 
     /***************************************************
      ********        Bank - Account Info        ********
@@ -96,6 +75,6 @@ public class BankController {
      */
     @PostMapping("/infos")
     public void saveBankInfo(@RequestBody BankInfoReq param) {
-        bankAggregate.saveBankInfo(param);
+        bankInfoService.saveBankInfoList(param.getBankInfoReqs());
     }
 }

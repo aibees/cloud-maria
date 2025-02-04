@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface ImportFileRepo extends JpaRepository<AccountImportFile, AccountImportFileId> {
 
+    List<AccountImportFile> findAllByFileTypeAndUploadedYn(String fileType, String uploadedYn);
     List<AccountImportFile> findAllByFileType(String fileType);
 }

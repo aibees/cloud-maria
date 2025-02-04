@@ -1,9 +1,16 @@
 package com.aibees.service.maria.account.service.account;
 
-import com.aibees.service.maria.account.domain.dto.account.JournalHeaderReq;
-import com.aibees.service.maria.account.domain.dto.account.JournalHeaderRes;
-import com.aibees.service.maria.account.domain.dto.account.JournalLinesReq;
-import com.aibees.service.maria.account.domain.dto.account.JournalLinesRes;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.aibees.service.maria.account.domain.dto.account.*;
 import com.aibees.service.maria.account.domain.entity.account.JournalHeader;
 import com.aibees.service.maria.account.domain.entity.account.JournalHeaderSeq;
 import com.aibees.service.maria.account.domain.entity.account.JournalLines;
@@ -11,23 +18,10 @@ import com.aibees.service.maria.account.domain.mapper.AccountJournalMapper;
 import com.aibees.service.maria.account.domain.repo.account.JournalHeaderRepo;
 import com.aibees.service.maria.account.domain.repo.account.JournalHeaderSeqRepo;
 import com.aibees.service.maria.account.domain.repo.account.JournalLinesRepo;
-import com.aibees.service.maria.common.domain.entity.ResponseData;
 import com.aibees.service.maria.common.excepts.MariaException;
 import com.aibees.service.maria.common.service.ServiceCommon;
 import com.aibees.service.maria.common.utils.StringUtils;
 import lombok.AllArgsConstructor;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -40,7 +34,6 @@ public class JournalService extends ServiceCommon {
 
     private final DateTimeFormatter ymdFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-    private final DateTimeFormatter ymFormat = DateTimeFormatter.ofPattern("yyyyMM");
     private final DateTimeFormatter fullFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     /**

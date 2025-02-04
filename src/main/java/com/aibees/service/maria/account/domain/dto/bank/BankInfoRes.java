@@ -20,4 +20,5 @@ public class BankInfoRes {
     private Long limitAmt;
     private String startDate;
     private String useYn;
+    private String displayYn;
 }

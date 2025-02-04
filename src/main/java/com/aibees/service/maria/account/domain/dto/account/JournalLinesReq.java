@@ -2,6 +2,8 @@ package com.aibees.service.maria.account.domain.dto.account;
 
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -16,4 +18,9 @@ public class JournalLinesReq {
     private String remark;
     private String attribute1;
     private String attribute2;
+
+    // for Query
+    private String ym;
+    private String flowType;
+    private List<String> acctCdList;
 }

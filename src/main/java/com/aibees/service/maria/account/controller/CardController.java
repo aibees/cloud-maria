@@ -1,17 +1,15 @@
 package com.aibees.service.maria.account.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.aibees.service.maria.account.domain.dto.card.CardInfoReq;
 import com.aibees.service.maria.account.domain.dto.card.CardInfoRes;
 import com.aibees.service.maria.account.domain.dto.card.CardStatementReq;
 import com.aibees.service.maria.account.domain.dto.card.CardStatementRes;
 import com.aibees.service.maria.account.service.card.CardService;
-import com.aibees.service.maria.common.domain.entity.ResponseData;
 import lombok.AllArgsConstructor;
-
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor

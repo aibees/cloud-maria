@@ -21,13 +21,14 @@ public class ExcelParserForHANABANK implements ExcelParser {
         List<String> colList = ExcelParseHandler.getHeaderList(dataSheet.getRow(HEADER_ROW));
         Map<Integer, List<String>> dataListByRow = ExcelParseHandler.getDataList(dataSheet, colList, DATA_ROW);
 
+        String bankId = MapUtils.getString(param, "bankId");
+        String bankCd = MapUtils.getString(param, "bankCd");
+
         return dataListByRow.keySet().stream()
             .map(k -> {
                 List<String> data = dataListByRow.get(k);
                 String[] dateData = data.get(0).split(AccConstant.SPACE_STR);
 
-                String bankId = MapUtils.getString(param, "bankId");
-                String bankCd = MapUtils.getString(param, "bankCd");
                 String ymdStr = dateData[0].replace("-", "");
                 String timeStr = dateData[1].replace(":", "");
                 // 수입 : 0 / 지출 : 1

@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableMap;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -34,8 +36,9 @@ public class BankInfoService extends ServiceCommon {
                 .stream()
                 .peek(bank -> {
                     Long limitAmt = bank.getLimitAmt();
-                    bank.setLimitAmt(limitAmt == null ? -1L : limitAmt);
+                    bank.setLimitAmt(limitAmt == null ? 0 : limitAmt);
                     bank.setUseYn(StringUtils.isNull(bank.getUseYn()) ? AccConstant.No : bank.getUseYn());
+                    bank.setDisplayYn(StringUtils.isNull(bank.getDisplayYn()) ? AccConstant.No : bank.getDisplayYn());
                 })
                 .map(bankInfoMapper::toResp)
                 .collect(Collectors.toList());
@@ -45,8 +48,8 @@ public class BankInfoService extends ServiceCommon {
         }
     }
 
-    public ResponseEntity<ResponseData> saveBankInfo(List<BankInfoReq> saveParam) {
-        return null;
+    public void saveBankInfo(List<BankInfoReq> saveParam) {
+
     }
 
     /**
@@ -63,36 +66,35 @@ public class BankInfoService extends ServiceCommon {
         return List.copyOf(bankInfos);
     }
 
-    public ResponseEntity<ResponseData> saveBankInfoList(BankInfoReq param) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void saveBankInfoList(List<BankInfoReq> param) {
         try {
-            BankInfo saved = null;
-            if (StringUtils.isEquals(param.getTrxType(), TrxType.INSERT.name())) {
-                BankInfo newInfo = BankInfo.builder().build();
-                saved = bankInfoRepo.save(newInfo);
+            param.forEach(data -> {
+                BankInfo bankInfo = bankInfoRepo.findById(data.getBankId())
+                    .orElseThrow(() -> new MariaException("데이터 없음"));
 
-            } else if (StringUtils.isEquals(param.getTrxType(), TrxType.UPDATE.name())) {
-                BankInfo existed = bankInfoRepo.findByBankIdAndBankCd(param.getBankId(), param.getBankCd()).orElseThrow();
-                updateBankInfo(existed, param);
-                saved = existed;
-            } else {
-                // DELETE
-                BankInfo existed = bankInfoRepo.findByBankIdAndBankCd(param.getBankId(), param.getBankCd()).orElseThrow();
-                bankInfoRepo.delete(existed);
-            }
+                if (TrxType.INSERT.name().equals(data.getTrxType())) {
+                    BankInfo newInfo = bankInfoMapper.toEntity(data);
+                    bankInfoRepo.save(newInfo);
 
-            return successResponse(ImmutableMap.of(
-                    AccConstant.CM_RESULT, String.join("_", param.getTrxType(), AccConstant.CM_SUCCESS),
-                    AccConstant.CM_DATA, saved
-            ));
+                } else if (TrxType.DELETE.name().equals(data.getTrxType())) {
+                    bankInfoRepo.delete(bankInfo);
+
+                } else {
+                    // update
+                    updateBankInfo(bankInfo, data);
+                }
+            });
         } catch(Exception e) {
-            return failedResponse(e);
+            throw new MariaException(e.getMessage());
         }
     }
 
     private void updateBankInfo(BankInfo entity, BankInfoReq param) {
         entity.setBankAcct(param.getBankAcct());
-       // entity.setBankNm(param.getBankNm());
+        entity.setBankNm(param.getBankNm());
         entity.setLimitAmt(param.getLimitAmt());
         entity.setUseYn(param.getUseYn());
+        entity.setDisplayYn(param.getDisplayYn());
     }
 }
